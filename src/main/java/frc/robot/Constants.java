@@ -5,8 +5,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-
 import java.awt.geom.Point2D;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -22,6 +20,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kDemoControllerPort = 2;
+    public static final double kDeadband = 0.01;
+    public static final double kCubic = 0.95;
+    public static final double kLinear = 0.05;
   }
   public static final class ModuleConstants {
     public static final class Drive {
@@ -90,6 +92,10 @@ public static final class DriveConstants {
     public static final double kp = 0.50;
     public static final double ki = 0.0;
     public static final double kd = 0.0;
+  }
+
+  public static final  class Gryo {
+    public static final int kModuleID = 0;
   }
 
   public static final SwerveDriveKinematics kSwerveKinematics = new SwerveDriveKinematics(FrontLeft.kLocation,

@@ -36,7 +36,7 @@ public class SwerveModule extends SubsystemBase{
     private final AbsoluteEncoderConfig m_azimuthEncConfig;
      
 
-    public SwerveModule(int moduleID) {
+    public SwerveModule(int moduleID, double offset) {
         m_azimuthMotor = new SparkMax(moduleID+1, MotorType.kBrushless);
         m_azimuthPID = m_azimuthMotor.getClosedLoopController();
         m_motorConfigAz
@@ -80,7 +80,7 @@ public class SwerveModule extends SubsystemBase{
     }
 
 
-    public SwerveModulePosition getpPosition() {
+    public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getStateAngle()));
     }
     public double getDriveVelocity() {
