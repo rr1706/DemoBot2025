@@ -38,6 +38,11 @@ public class RobotContainer {
    */
 
   private void configureBindings() {
+    /* 
+    m_driverController.a().whileFalse(m_Intake.intakeInCommand());
+    m_driverController.rightBumper().and(m_driverController.a()).whileFalse(m_Intake.intakeInCommand());
+    // Intake In Command is set for when Right Bumber is not pressed
+*/
     m_driverController.a().whileTrue(new IntakeOutCommand(m_Intake));
     m_driverController.rightBumper().and(m_driverController.a()).whileTrue(m_Intake.intakeOutCommand2());
     // Intake Out Command is Set for Right Bumber

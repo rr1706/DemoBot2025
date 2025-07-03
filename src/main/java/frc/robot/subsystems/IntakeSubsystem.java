@@ -11,10 +11,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleTopic;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
@@ -24,6 +28,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase{
+
+    private DoubleTopic m_rotateAngleTopic = NetworkTableInstance.getDefault().getTable("Rotate").getDoubleTopic("/Rotate/Angle");
+    private DoublePublisher m_rotateAnglePublish = m_rotateAngleTopic.publish();
 
     private final SparkMax m_rotate = new SparkMax(m_rotatePort, MotorType.kBrushless);;
     // Rotation Motor
@@ -37,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase{
     // Rotation Port, could be changed.
     private final static int m_rollerPort = 2;
     // Roller port, could be changed.
-    private final static double m_rotateGearing = 1;
+    private final static double m_rotateGearing = 25;
     private final static double m_rollerGearing = 1;
     private final RelativeEncoder m_rotateEncoder = m_rotate.getEncoder();
     private final RelativeEncoder m_rollerEncoder;
@@ -64,10 +71,11 @@ public class IntakeSubsystem extends SubsystemBase{
 
        m_rotateMotorConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(0.1)
+        .p(0.08)
         .i(0)
         .d(0)
         .outputRange(-1, 1);
+        m_rotateMotorConfig.idleMode(IdleMode.kBrake);
         m_rotate.configure(m_rotateMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
       m_roller = new SparkMax(m_rollerPort, MotorType.kBrushless);
@@ -78,7 +86,7 @@ public class IntakeSubsystem extends SubsystemBase{
       .positionConversionFactor(m_rollerGearing)
       .velocityConversionFactor(m_rollerGearing/60);
 
-       m_rotateMotorConfig.closedLoop
+       m_rollerMotorConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
         .p(0.1)
         .i(0)
@@ -99,10 +107,15 @@ public class IntakeSubsystem extends SubsystemBase{
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_rotateArmSim.getCurrentDrawAmps()));
     }
 
+    @Override
+    public void periodic() {
+        m_rotateAnglePublish.set(Units.rotationsToDegrees(getAngle()));
+    }
+
 
     public void IntakeRotate(double target) {
 
-        m_rotatePID.setReference(target, ControlType.kPosition);
+        m_rotatePID.setReference(Units.degreesToRotations(-target), ControlType.kPosition);
     }
 
     public void IntakeRoller(double target) {
@@ -138,7 +151,7 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
     public Command intakeInCommand() {
-        return this.runOnce(()->this.IntakeIn());
+        return this.run(()->this.IntakeIn());
         // Creates command for moving intake in.
     }
 }
