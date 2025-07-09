@@ -18,13 +18,13 @@ public final class Constants {
   }
 
   public static class IntakeConstants {
-    public static final double kOut = 60;
+    public static final double kOut = -60;
     // Needs to be changed
     public static final double kVelocity = 1;
     // Needs to be changed
-    public static final double kIn = 1;
+    public static final double kIn = 0;
     // Needs to be changed
-    public static final double kVelocityIn = 1;
+    public static final double kVelocityIn = 0;
     // Needs to be changed
   }
 }
