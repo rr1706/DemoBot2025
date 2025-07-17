@@ -13,7 +13,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -36,6 +35,9 @@ public class IntakeSubsystem extends SubsystemBase {
     private DoubleTopic m_rotateAngleTopic = NetworkTableInstance.getDefault().getTable("Rotate")
             .getDoubleTopic("/Rotate/Angle");
     private DoublePublisher m_rotateAnglePublish = m_rotateAngleTopic.publish();
+    private DoubleTopic m_rollerAngleTopic = NetworkTableInstance.getDefault().getTable("Roller")
+            .getDoubleTopic("/Roller/Velocity");
+    private DoublePublisher m_rollerAnglePublish = m_rollerAngleTopic.publish();
 
     private final SparkMax m_rotate = new SparkMax(m_rotatePort, MotorType.kBrushless);
     // Rotation Motor
@@ -105,7 +107,6 @@ public class IntakeSubsystem extends SubsystemBase {
                 .d(0)
                 .outputRange(-1, 1);
         m_roller.configure(m_rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
     }
 
     @Override
@@ -130,6 +131,8 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         m_rotateAnglePublish.set(Units.rotationsToDegrees(getAngle()));
+        m_rollerAnglePublish.set(Units.rotationsToDegrees(getVelocity()));
+                //get publish roller velocity
     }
 
     public void IntakeRotate(double target) {
@@ -148,8 +151,14 @@ public class IntakeSubsystem extends SubsystemBase {
         return Angle;
     }
 
-    private static final double tol = 0.1;
-    private static final double tolTwo = 3;
+    public double getVelocity() {
+        double Velocity = m_rollerEncoder.getPosition();
+        SmartDashboard.getNumber("Velocity Roller", Velocity);
+        return Velocity;
+    }
+
+    private static final double tol = 0.5;
+    private static final double tolTwo = 1;
 
     private void IntakeOut() {
         out = true;
@@ -161,19 +170,25 @@ public class IntakeSubsystem extends SubsystemBase {
         }
 
     }
-
-    private void IntakeIn() {
+        private void rotateRollerStop() {
+            m_rotate.close();
+            m_rotate.set(0);
+            m_rotate.setVoltage(0);
+            m_roller.close();
+            m_roller.set(0);
+            m_roller.setVoltage(0);
+            // Needs to prevent m_rotate from moving, null doesn't work, idle mode doesn't work, throwing laptop doesn't work.
+        }
+   
+        private void IntakeIn() {
         out = false;
         SmartDashboard.getBoolean("Out", out);
-        if (Math.abs(getAngle() - IntakeConstants.kIn) < tol) {
+        IntakeRotate(IntakeConstants.kIn);
+        if (Math.abs(getAngle() - IntakeConstants.kIn) < tolTwo) {
             IntakeRoller(IntakeConstants.kVelocityIn);
         }
-        if (Math.abs(getAngle() - IntakeConstants.kIn) < tolTwo) {
-             
-            }
         // Sets volocity & Angle for Roller & Rotation Motors
         }
-    
 
     public Command intakeOutCommand2() {
         return this.runEnd(() -> {
@@ -191,5 +206,4 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.run(() -> this.IntakeIn());
         // Creates command for moving intake in.
     }
-
 }

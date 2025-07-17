@@ -5,6 +5,7 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.IntakeOutCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import javax.lang.model.util.ElementScanner14;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -37,14 +38,9 @@ public class RobotContainer {
    */
 
   private void configureBindings() {
-    
-    
-    m_driverController.rightBumper().whileTrue(m_Intake.intakeOutCommand2());
-    // Intake In Command is set for when Right Bumber is not pressed
-
-    //m_driverController.rightBumper().and(m_driverController.a()).whileTrue(m_Intake.intakeOutCommand2());
-    // Intake Out Command is Set for Right Bumber
-
+  
+    m_driverController.rightBumper().and(m_driverController.a()).whileTrue(m_Intake.intakeOutCommand2());
+    // Intake In Command is set for when Right Bumber is not pressed 
   }
 
   public double getIntakeAngle() {

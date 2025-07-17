@@ -18,8 +18,6 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private final RobotSide2d RobotDisplay = new RobotSide2d();
   private final RobotContainer m_robotContainer;
-
-
   
 
   /**
