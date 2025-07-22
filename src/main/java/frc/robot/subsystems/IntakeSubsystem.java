@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.lang.annotation.Target;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -38,25 +40,35 @@ public class IntakeSubsystem extends SubsystemBase {
     private DoubleTopic m_rollerAngleTopic = NetworkTableInstance.getDefault().getTable("Roller")
             .getDoubleTopic("/Roller/Velocity");
     private DoublePublisher m_rollerAnglePublish = m_rollerAngleTopic.publish();
+                    // Publishers for the Rotation and Roller Motor to the Smart Dashboard.
 
-    private final SparkMax m_rotate = new SparkMax(m_rotatePort, MotorType.kBrushless);
+    private SparkMax m_rotate = new SparkMax(m_rotatePort, MotorType.kBrushless);
     // Rotation Motor
     private final SparkMax m_roller = new SparkMax(m_rollerPort, MotorType.kBrushless);
     boolean out = true;
     // Roller Motor
+
     private final SparkMaxConfig m_rotateMotorConfig = new SparkMaxConfig();
     private final SparkMaxConfig m_rollerMotorConfig = new SparkMaxConfig();
+    // Creates the motors configurations.
+
     private final SparkClosedLoopController m_rotatePID;
     private final SparkClosedLoopController m_rollerPID;
+
     private final static int m_rotatePort = 1;
     // Rotation Port, could be changed.
     private final static int m_rollerPort = 2;
     // Roller port, could be changed.
+
     private final static double m_rotateGearing = 25;
     private final static double m_rollerGearing = 1;
+    // Gearing for the Rotation and Roller motors TBC.
+
     private final RelativeEncoder m_rotateEncoder = m_rotate.getEncoder();
     private final RelativeEncoder m_rollerEncoder = m_roller.getEncoder();
+    // Creates Encoders for the Rotation and Roller Motors.
 
+    // Background for Rotation Motors Sim.
     private final SparkMaxSim m_rotateSim = new SparkMaxSim(m_rotate, DCMotor.getNEO(1));
     private final SparkRelativeEncoderSim m_rotateEncoderSim = new SparkRelativeEncoderSim(m_rotate);
     private final SingleJointedArmSim m_rotateArmSim = new SingleJointedArmSim(DCMotor.getNEO(1),
@@ -74,7 +86,7 @@ public class IntakeSubsystem extends SubsystemBase {
             private final FlywheelSim m_rollerFlyWheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 1, m_rollerGearing),
                                                                              DCMotor.getNEO(1).withReduction(m_rollerGearing), 
                                                                              0.0);
-
+    
     public IntakeSubsystem() {
 
         m_rotatePID = m_rotate.getClosedLoopController();
@@ -109,6 +121,8 @@ public class IntakeSubsystem extends SubsystemBase {
         m_roller.configure(m_rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
+
+        // More Background for Robot Simulations.
     @Override
     public void simulationPeriodic() {
         m_rotateArmSim.setInputVoltage(m_rotateSim.getAppliedOutput() * RobotController.getBatteryVoltage());
@@ -132,28 +146,30 @@ public class IntakeSubsystem extends SubsystemBase {
     public void periodic() {
         m_rotateAnglePublish.set(Units.rotationsToDegrees(getAngle()));
         m_rollerAnglePublish.set(Units.rotationsToDegrees(getVelocity()));
-                //get publish roller velocity
+                // Converts to correct unit then published to SmartDashboard.
     }
 
     public void IntakeRotate(double target) {
 
         m_rotatePID.setReference(Units.degreesToRotations(target), ControlType.kPosition);
+        // Allows you to change target value later in code for the rotation motor.
     }
 
     public void IntakeRoller(double target) {
 
         m_rollerPID.setReference(Units.degreesToRotations(IntakeConstants.kVelocity), ControlType.kVelocity);
+        // Allows you to change target value later in code for the roller motor.
     }
 
     public double getAngle() {
         double Angle = m_rotateEncoder.getPosition();
-        SmartDashboard.getNumber("Angle Intake", Angle);
+        SmartDashboard.getNumber("Intake Angle", Angle);
         return Angle;
     }
 
     public double getVelocity() {
         double Velocity = m_rollerEncoder.getPosition();
-        SmartDashboard.getNumber("Velocity Roller", Velocity);
+        SmartDashboard.getNumber("Roller Velocity", Velocity);
         return Velocity;
     }
 
@@ -183,9 +199,10 @@ public class IntakeSubsystem extends SubsystemBase {
         private void IntakeIn() {
         out = false;
         SmartDashboard.getBoolean("Out", out);
-        IntakeRotate(IntakeConstants.kIn);
+        IntakeRotate(0.0);
         if (Math.abs(getAngle() - IntakeConstants.kIn) < tolTwo) {
             IntakeRoller(IntakeConstants.kVelocityIn);
+             m_rotate = null;
         }
         // Sets volocity & Angle for Roller & Rotation Motors
         }
@@ -194,13 +211,16 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.runEnd(() -> {
             SmartDashboard.getBoolean("Out", out);
             IntakeRotate(IntakeConstants.kOut);
+            if (Math.abs(IntakeConstants.kOut) < tol) {
+                    m_rotate = null;
+            }
             if (Math.abs(getAngle() - IntakeConstants.kOut) < tol) {
                 IntakeRoller(IntakeConstants.kVelocity);
                 // Sets volocity & Angle for Roller & Rotation Motors
             }
         }, () -> {m_rotatePID.setReference(Units.degreesToRotations(IntakeConstants.kIn), ControlType.kPosition); 
                     m_rollerPID.setReference(Units.degreesToRotations(IntakeConstants.kVelocity), ControlType.kVelocity);});
-    }
+     }
 
     public Command intakeInCommand() {
         return this.run(() -> this.IntakeIn());

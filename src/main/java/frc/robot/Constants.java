@@ -11,13 +11,15 @@ public final class Constants {
 
   public static class IntakeConstants {
     public static final double kOut = -60;
-    // Needs to be changed
+    // Out angle for the rotation motor.
+
     public static final double kVelocity = 1;
-    // Needs to be changed
-    public static final double kIn = 2;
-    // Needs to be changed
+    // Speed at which the rollers will spin.
+
+    public static final double kIn = 0;
+    // In angle for the rotation Motor.
+
     public static final double kVelocityIn = 0;
-    // Needs to be changed
-    public static final Object knull = null;
+    // Speed for disabling the rollers.
   }
 }
