@@ -11,9 +11,12 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+
 
 public class RobotContainer {
   private final IntakeSubsystem m_Intake = new IntakeSubsystem();
+  private final ShooterSubsystem m_Shooter = new ShooterSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -29,6 +32,9 @@ public class RobotContainer {
   
     m_driverController.rightBumper().and(m_driverController.a()).whileTrue(m_Intake.intakeOutCommand2());
     // Intake In Command is set for when Right Bumber is not pressed 
+
+    m_driverController.leftTrigger().whileTrue(m_Shooter.ShootCommand());
+    // Shoot command is set for when left trigger is pressed
   }
 
   public double getIntakeAngle() {

@@ -22,4 +22,9 @@ public final class Constants {
     public static final double kVelocityIn = 0;
     // Speed for disabling the rollers.
   }
+
+  public static class ShooterConstants {
+    public static final double kVelocity = 0;
+    public static final double kVelocityStop = 0;
+  }
 }
