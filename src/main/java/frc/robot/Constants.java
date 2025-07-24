@@ -24,7 +24,7 @@ public final class Constants {
   }
 
   public static class ShooterConstants {
-    public static final double kVelocity = 0;
+    public static final double kVelocity = 50;
     public static final double kVelocityStop = 0;
   }
 }
