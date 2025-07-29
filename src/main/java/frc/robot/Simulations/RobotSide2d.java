@@ -46,7 +46,6 @@ public class RobotSide2d {
 
         m_Intake2dUpper.setAngle(90-Units.rotationsToDegrees(IntakeAngle));
         m_Intake2dLower.setAngle(90-Units.rotationsToDegrees(IntakeAngle));
-     //   m_IntakeRoller.setVelocity(RollerVelocity);
     }
 
 }

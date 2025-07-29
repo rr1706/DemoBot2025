@@ -219,7 +219,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 // Sets volocity & Angle for Roller & Rotation Motors
             }
         }, () -> {m_rotatePID.setReference(Units.degreesToRotations(IntakeConstants.kIn), ControlType.kPosition); 
-                    m_rollerPID.setReference(Units.degreesToRotations(IntakeConstants.kVelocity), ControlType.kVelocity);});
+                    m_rollerPID.setReference(Units.degreesToRotations(IntakeConstants.kVelocityIn), ControlType.kVelocity);});
      }
 
     public Command intakeInCommand() {

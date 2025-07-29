@@ -42,6 +42,10 @@ public class RobotContainer {
       // Gets current angle the Intake is at.
   }
 
+  public double getShooterVelocity() {
+    return m_Shooter.getVelocity();
+  }
+
   public Command getAutonomousCommand() {
     return new WaitCommand(0.0);
      // Voids the Auto Command.
