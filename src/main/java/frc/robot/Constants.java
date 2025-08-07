@@ -13,7 +13,7 @@ public final class Constants {
     public static final double kOut = -60;
     // Out angle for the rotation motor.
 
-    public static final double kVelocity = 1;
+    public static final double kVelocity = 5;
     // Speed at which the rollers will spin.
 
     public static final double kIn = 0;

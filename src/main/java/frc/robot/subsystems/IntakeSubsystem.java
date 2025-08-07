@@ -177,15 +177,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private static final double tolTwo = 1;
 
     private void IntakeOut() {
-        out = true;
-        SmartDashboard.getBoolean("Out", out);
         IntakeRotate(IntakeConstants.kOut);
-        if (Math.abs(getAngle() - IntakeConstants.kOut) < tol) {
             IntakeRoller(IntakeConstants.kVelocity);
             // Sets volocity & Angle for Roller & Rotation Motors
         }
 
-    }
         private void rotateRollerStop() {
             m_rotate.close();
             m_rotate.set(0);
@@ -197,14 +193,9 @@ public class IntakeSubsystem extends SubsystemBase {
         }
    
         private void IntakeIn() {
-        out = false;
-        SmartDashboard.getBoolean("Out", out);
-        IntakeRotate(0.0);
-        if (Math.abs(getAngle() - IntakeConstants.kIn) < tolTwo) {
-            IntakeRoller(IntakeConstants.kVelocityIn);
-             m_rotate = null;
-        }
-        // Sets volocity & Angle for Roller & Rotation Motors
+            IntakeRotate(IntakeConstants.kIn);
+                IntakeRoller(IntakeConstants.kVelocityIn);
+                // Sets volocity & Angle for Roller & Rotation Motors
         }
 
     public Command intakeOutCommand2() {
@@ -224,6 +215,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command intakeInCommand() {
         return this.run(() -> this.IntakeIn());
+        // Creates command for moving intake in.
+    }
+
+    public Command intakeOutCommand() {
+        return this.run(() -> this.IntakeOut());
         // Creates command for moving intake in.
     }
 }
