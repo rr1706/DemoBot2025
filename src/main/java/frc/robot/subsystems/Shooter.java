@@ -7,129 +7,96 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.CAN;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.CurrentLimit;
 import frc.robot.Constants.GlobalConstants;
+import frc.robot.Constants.ModuleConstants.Drive;
+import frc.robot.Constants.ShooterConstants;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
- 
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+
+
+/*private final CANSparkMax m_motor1;
+private final CANSparkMax m_motor2;
+private final RelativeEncoder m_encoder1;
+private final RelativeEncoder m_encoder2;
+private final PIDController m_PID = new PIDController(ShooterConstants.kPID[0], ShooterConstants.kPID[1],
+        ShooterConstants.kPID[2]);
+private SimpleMotorFeedforward m_FF = new SimpleMotorFeedforward(ShooterConstants.kStatic, ShooterConstants.kFF);
+
+private double m_RPM = ShooterConstants.kMaxRPM;*/
 
 public class Shooter extends SubsystemBase {
+    private final SparkMax m_shootermotor1;
+    private final SparkMax m_shootermotor2;
+    private SimpleMotorFeedforward m_FF = new SimpleMotorFeedforward(ShooterConstants.kStatic, ShooterConstants.kFF);    private final PIDController m_PID = new PIDController(Constants.ShooterConstants.kPID[0], Constants.ShooterConstants.kPID[1], 
+        Constants.ShooterConstants.kPID[2]);
+    private final SparkMaxConfig m_motorConfigSM1 = new SparkMaxConfig();
+    public final RelativeEncoder m_shooterM1Enc;
+    private final SparkMaxConfig m_motorConfigSM2 = new SparkMaxConfig();
+    public final RelativeEncoder m_shooterM2Enc;
+    private double m_RPM = Constants.ShooterConstants.kMaxRPM;
 
-    private final SparkMax m_shootermotor1 = new SparkMax(6, MotorType.kBrushless);
-    private final SparkMax m_shootermotor2 = new SparkMax(5, MotorType.kBrushless);
-    private final SparkMax m_feedermotor = new SparkMax(9, MotorType.kBrushless);
+
+    public Shooter(int moduleID, double offset) {
+        m_shootermotor1 = new SparkMax(moduleID+1, MotorType.kBrushless);
+        m_shootermotor2 = new SparkMax(moduleID, MotorType.kBrushless);
+        m_shooterM1Enc = m_shootermotor1.getEncoder();
+        m_shooterM2Enc = m_shootermotor2.getEncoder();
+
+        m_motorConfigSM1
+            .smartCurrentLimit(CurrentLimit.kShooter)
+            .voltageCompensation(GlobalConstants.kVoltageCompensation)
+            .idleMode(IdleMode.kCoast);
+
+        m_motorConfigSM2
+            .smartCurrentLimit(CurrentLimit.kShooter)
+            .voltageCompensation(GlobalConstants.kVoltageCompensation)
+            .idleMode(IdleMode.kCoast);
+            
+        m_shootermotor2.isFollower(); //look up way to make motor follower
+
+        m_shooterM1Enc.velocityConversionFactor(1.0);
+
+        m_shootermotor1.configure(m_motorConfigSM1,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters) ;//find new method for burn flash
+        m_shootermotor2.configure(m_motorConfigSM2,ResetMode.kResetSafeParameters,PersistMode.kPersistParameters) ;//find new method for burn flash
 
 
-    private double m_desiredSpin = 0.0;
+        m_PID.setTolerance(Constants.ShooterConstants.kRPMTolerance);
 
-    private double m_desriedVel = 0.0;
-
-    public Shooter() {
-
-        configurePID();
-        m_shootermotor1.getConfigurator().apply(slot0Configs);
-        m_shootermotor2.getConfigurator().apply(slot0Configs);
-        m_shootermotor1.getConfigurator().apply(CurrentLimit.kShooter);
-        m_shootermotor2.getConfigurator().apply(CurrentLimit.kShooter);
-
-        m_shootermotor1.setNeutralMode(NeutralModeValue.Brake);
-        m_shootermotor2.setNeutralMode(NeutralModeValue.Brake);
-
-        m_feedermotor
-            .smartCurrentLimit();
-    }
+        m_PID.setIntegratorRange(-Constants.ShooterConstants.kIntRange, Constants.ShooterConstants.kIntRange);
 
 }
-
-    public void configurePID() {
-        slot0Configs.kS = 0.05; // Add 0.05 V output to overcome static friction
-        slot0Configs.kV = 0.12; // A velocity target of 1 rps results in 0.12 V output
-        slot0Configs.kP = 0.10; // An error of 1 rps results in 0.10 V output
-        slot0Configs.kI = 0; // no output for integrated error
-        slot0Configs.kD = 0; // no output for error derivative
-    }
-
-    @Override
-    public void periodic() {
-        m_motor1.setControl(m_request.withVelocity(m_desriedVel + m_desiredSpin / 2.0).withSlot(0));
-        m_motor2.setControl(m_request.withVelocity(-1.0 * (m_desriedVel - m_desiredSpin / 2.0)).withSlot(0));
-
-    }
-
-    public void run(double velocity) {
-        m_desriedVel = velocity;
-        m_motor1.setControl(m_request.withVelocity(velocity).withSlot(0));
-        m_motor2.setControl(m_request.withVelocity(-1.0 * velocity).withSlot(0));
-
-    }
-
-    public Command changeSpeed(double adjust) {
-        return runOnce(() -> {
-            m_desriedVel += adjust;
-            if (m_desriedVel >= 80.0) {
-                m_desriedVel = 80.0;
-            } else if (m_desriedVel <= 10.0) {
-                m_desriedVel = 10.0;
-            }
-        });
-    }
-
-    public void run(double velocity, double spinDiff) {
-        spinDiff = 0.01 * spinDiff * velocity;
-        if (velocity >= 100.0) {
-            velocity = 100.0;
-        } else if (velocity <= -20.0) {
-            velocity = -20.0;
+        public void run(double rpm) {
+        if (rpm >= ShooterConstants.kMaxRPM) {
+            rpm = ShooterConstants.kMaxRPM;
         }
-        m_desriedVel = velocity;
-        m_desiredSpin = spinDiff;
+        m_RPM = rpm;
+        double outputPID = m_PID.calculate(m_shooterM1Enc.getVelocity(), m_RPM);
+        double outputFF = m_FF.calculate(m_RPM);
+        double output = outputPID + outputFF;
+
+        if (output <= ShooterConstants.kMaxNegPower) {
+            output = ShooterConstants.kMaxNegPower;
+        }
+
+        m_shootermotor1.set(outputPID + outputFF);
     }
 
-    public Command runCommand(double velocity, double spinDiff) {
-        return runEnd(() -> run(velocity, spinDiff), () -> stopShooter());
-    }
-
-    public void stopShooter() {
+    public void stop() {
         m_shootermotor1.stopMotor();
         m_shootermotor2.stopMotor();
-        m_desriedVel = 0.0;
-        m_desiredSpin = 0.0;
-    }
-
-    public boolean atSetpoint() {
-        return Math.abs(m_shootermotor1.getVelocity().getValueAsDouble() - m_desriedVel) <= 5.0;
-    }
-
-    public double getSetVelocity() {
-        return m_desriedVel;
-    }
-    public void runFeeder(double speed) {
-        m_feedermotor.set(speed);
-    }
-
-    public Command runCommand(double speed) {
-        return runOnce(() -> run(speed));
-    }
-
-    public Command feed(){
-        return runEnd(()->run(0.8), ()->stopFeeder());
-    }
-
-    public void stopFeeder() {
-        m_feedermotor.stopMotor();
-    }
-
-    public Command stopCommand() {
-        return runOnce(() -> stopFeeder());
-    }
+}
 }
 
 
