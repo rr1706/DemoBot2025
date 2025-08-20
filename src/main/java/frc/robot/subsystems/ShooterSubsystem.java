@@ -30,22 +30,32 @@ import frc.robot.Constants.ShooterConstants;
 public class ShooterSubsystem extends SubsystemBase {
 
     private SparkMax m_Shooter = new SparkMax(m_shooterPort, MotorType.kBrushless);
+    private SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
 
-     private DoubleTopic m_shooterAngleTopic = NetworkTableInstance.getDefault().getTable("Shooter")
+    private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
             .getDoubleTopic("/Shooter/Velocity");
+    private DoublePublisher m_shooterPublish = m_shooterTopic.publish();
+    private DoubleTopic m_shooterAngleTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
+            .getDoubleTopic("/Shooter/Angle");
     private DoublePublisher m_shooterAnglePublish = m_shooterAngleTopic.publish();
 
     private final SparkMaxConfig m_shooterMotorConfig = new SparkMaxConfig();
     // Creates the motors configurations.
+    private final SparkMaxConfig m_shooterAngleMotorConfig = new SparkMaxConfig();
+    // Creates the motors configurations.
+
 
     private final SparkClosedLoopController m_shooterPID;
+    private final SparkClosedLoopController m_shooterAnglePID;
 
     private final static int m_shooterPort = 3;
-    // Shooter Port, could be changed.
+    private final static int m_shooterAnglePort = 4;
 
     private static double m_shooterGearing = 1;
+    private static double m_shooterAngleGearing = 1;
 
     private final RelativeEncoder m_shooterEncoder = m_Shooter.getEncoder();
+    private final RelativeEncoder m_shooterAngleEncoder = m_ShooterAngle.getEncoder();
 
     
     private final SparkMaxSim m_shooterSim = new SparkMaxSim(m_Shooter, DCMotor.getNEO(1));
@@ -58,10 +68,15 @@ public class ShooterSubsystem extends SubsystemBase {
     public ShooterSubsystem() {
 
         m_shooterPID = m_Shooter.getClosedLoopController();
+        m_shooterAnglePID = m_ShooterAngle.getClosedLoopController();
 
         m_shooterMotorConfig.encoder
           .positionConversionFactor(m_shooterGearing)
           .velocityConversionFactor(m_shooterGearing / 60);
+
+        m_shooterAngleMotorConfig.encoder
+            .positionConversionFactor(m_shooterAngleGearing)
+            .velocityConversionFactor(m_shooterAngleGearing/60);
 
         m_shooterMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -72,6 +87,14 @@ public class ShooterSubsystem extends SubsystemBase {
         m_shooterMotorConfig.idleMode(IdleMode.kBrake);
         m_Shooter.configure(m_shooterMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
+        m_shooterAngleMotorConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .p(0.1)
+                .i(0)
+                .d(0)
+                .outputRange(-1, 1);
+        m_shooterAngleMotorConfig.idleMode(IdleMode.kBrake);
+        m_ShooterAngle.configure(m_shooterAngleMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
      @Override
@@ -90,10 +113,24 @@ public class ShooterSubsystem extends SubsystemBase {
             m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocity), ControlType.kVelocity);
         }
 
+        private void ShootAngle() {
+            m_shooterAnglePID.setReference(Units.degreesToRotations(getPosition() + 5), ControlType.kPosition);
+        }
+
+        private void ShootStop() {
+            m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocityStop), ControlType.kVelocity);
+        }
+
+        private void ShootAngleDown() {
+            m_shooterAnglePID.setReference(Units.degreesToRotations(getPosition() - 5), ControlType.kPosition);
+        }
+
     @Override
     public void periodic() {
-        m_shooterAnglePublish.set(Units.rotationsToDegrees(getVelocity()));
+        m_shooterAnglePublish.set(Units.rotationsToDegrees(getPosition()));
                 // Converts to correct unit then published to SmartDashboard.
+
+        m_shooterPublish.set(Units.rotationsToDegrees(getVelocity()));
     }
 
     public double getVelocity() {
@@ -102,18 +139,35 @@ public class ShooterSubsystem extends SubsystemBase {
         return Velocity;
     }
 
-        public Command ShootCommand() {
-            return this.runEnd(() -> {
+    public double getPosition() {
+        double Position = m_shooterAngleEncoder.getPosition();
+        SmartDashboard.getNumber("shooter Angle", Position);
+        return Position;
+    }
+
+    public Command ShootCommand2() {
+        return this.runEnd(() -> {
                 
-            {m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocity), ControlType.kVelocity);}
+        {m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocity), ControlType.kVelocity);}
                     
-             }, () -> {m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocityStop), ControlType.kVelocity);});
+        }, () -> {m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocityStop), ControlType.kVelocity);});
             
         }
 
-        public Command ShootCommandTest() {
-            return this.run(() -> this.Shoot());
-        }
-    
+    public Command ShootCommand() {
+        return this.run(() -> this.Shoot());
+    }
+        
+    public Command ShootCommandStop() {
+        return this.run(() -> this.ShootStop());
+    }
+
+    public Command ShooterAngleAjustUpCommand() {
+        return this.run(() -> this.ShootAngle());
+    }
+
+    public Command ShooterAngleAjustDownCommand() {
+        return this.run(() -> this.ShootAngleDown());
+    }
 }
 

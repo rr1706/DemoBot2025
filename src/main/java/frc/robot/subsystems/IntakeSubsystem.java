@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import java.lang.annotation.Target;
-
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -121,8 +120,6 @@ public class IntakeSubsystem extends SubsystemBase {
         m_roller.configure(m_rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
-
-        // More Background for Robot Simulations.
     @Override
     public void simulationPeriodic() {
         m_rotateArmSim.setInputVoltage(m_rotateSim.getAppliedOutput() * RobotController.getBatteryVoltage());
@@ -173,47 +170,34 @@ public class IntakeSubsystem extends SubsystemBase {
         return Velocity;
     }
 
-    private static final double tol = 0.5;
-    private static final double tolTwo = 1;
-
-    private void IntakeOut() {
-        IntakeRotate(IntakeConstants.kOut);
-            IntakeRoller(IntakeConstants.kVelocity);
-            // Sets volocity & Angle for Roller & Rotation Motors
-        }
-
-        private void rotateRollerStop() {
-            m_rotate.close();
-            m_rotate.set(0);
-            m_rotate.setVoltage(0);
-            m_roller.close();
-            m_roller.set(0);
-            m_roller.setVoltage(0);
-            // Needs to prevent m_rotate from moving, null doesn't work, idle mode doesn't work, throwing laptop doesn't work.
-        }
-   
-        private void IntakeIn() {
-            IntakeRotate(IntakeConstants.kIn);
-                IntakeRoller(IntakeConstants.kVelocityIn);
-                // Sets volocity & Angle for Roller & Rotation Motors
-        }
-
     public Command intakeOutCommand2() {
         return this.runEnd(() -> {
             SmartDashboard.getBoolean("Out", out);
             IntakeRotate(IntakeConstants.kOut);
-            if (Math.abs(IntakeConstants.kOut) < tol) {
+            if (Math.abs(IntakeConstants.kOut) < 1) {
                     m_rotate = null;
             }
-            if (Math.abs(getAngle() - IntakeConstants.kOut) < tol) {
+            if (Math.abs(getAngle() - IntakeConstants.kOut) < 1) {
                 IntakeRoller(IntakeConstants.kVelocity);
                 // Sets volocity & Angle for Roller & Rotation Motors
             }
         }, () -> {m_rotatePID.setReference(Units.degreesToRotations(IntakeConstants.kIn), ControlType.kPosition); 
                     m_rollerPID.setReference(Units.degreesToRotations(IntakeConstants.kVelocityIn), ControlType.kVelocity);});
      }
+    
+    private void IntakeOut() {
+        IntakeRotate(IntakeConstants.kOut);
+            IntakeRoller(IntakeConstants.kVelocity);
+            // Sets volocity & Angle for Roller & Rotation Motors
+    }
 
-    public Command intakeInCommand() {
+    private void IntakeIn() {
+        IntakeRotate(IntakeConstants.kIn);
+            IntakeRoller(IntakeConstants.kVelocityIn);
+            // Sets volocity & Angle for Roller & Rotation Motors
+    }
+
+     public Command intakeInCommand() {
         return this.run(() -> this.IntakeIn());
         // Creates command for moving intake in.
     }

@@ -25,7 +25,6 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
-  
   }
 
   private void configureBindings() {
@@ -33,8 +32,12 @@ public class RobotContainer {
     m_driverController.rightBumper().and(m_driverController.a()).whileTrue(m_Intake.intakeOutCommand()).onFalse(m_Intake.intakeInCommand());
     // Intake In Command is set for when Right Bumber is not pressed 
 
-    m_driverController.leftTrigger().whileTrue(m_Shooter.ShootCommand());
+    m_driverController.leftTrigger().whileTrue(m_Shooter.ShootCommand()).onFalse(m_Shooter.ShootCommandStop());
     // Shoot command is set for when left trigger is pressed
+
+    m_driverController.povUp().whileTrue(m_Shooter.ShooterAngleAjustUpCommand());
+
+    m_driverController.povDown().whileTrue(m_Shooter.ShooterAngleAjustDownCommand());
   }
 
   public double getIntakeAngle() {
@@ -44,6 +47,10 @@ public class RobotContainer {
 
   public double getShooterVelocity() {
     return m_Shooter.getVelocity();
+  }
+
+  public double getShooterAngle() {
+    return m_Shooter.getPosition();
   }
 
   public Command getAutonomousCommand() {
