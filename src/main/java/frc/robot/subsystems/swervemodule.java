@@ -10,9 +10,11 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CurrentLimit;
 import frc.robot.Constants.GlobalConstants;
@@ -23,51 +25,41 @@ import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-
-public class SwerveModule extends SubsystemBase{
+public class SwerveModule extends SubsystemBase {
     private final SparkMax m_azimuthMotor;
     private final SparkMax m_driveMotor;
     private final SparkMaxConfig m_motorConfigAz = new SparkMaxConfig();
     private final SparkClosedLoopController m_azimuthPID;
     private final SparkClosedLoopController m_drivePID;
-    public final AbsoluteEncoder m_azimuthEnc; //set in robot container
-    public final RelativeEncoder m_driveEnc; // set in robot container, use rev setup, encoder is apart of motorconfig
+    private final double m_offset;
+    private final AnalogEncoder m_analogEnc;
+    private final RelativeEncoder m_driveEnc; // set in robot container, use rev setup, encoder is apart of motorconfig
     private final SparkMaxConfig m_motorConfigDrive = new SparkMaxConfig();
-    private final AbsoluteEncoderConfig m_azimuthEncConfig;
-     
+    private final PIDController m_aziPID = new PIDController(1.0, 0.0, 0.0);
 
-    public SwerveModule(int moduleID, double offset) {
-        m_azimuthMotor = new SparkMax(moduleID+1, MotorType.kBrushless);
+    public SwerveModule(int azimuthID, int driveID, int encoderID, double offset) {
+        m_azimuthMotor = new SparkMax(azimuthID, MotorType.kBrushless);
         m_azimuthPID = m_azimuthMotor.getClosedLoopController();
         m_motorConfigAz
-            .smartCurrentLimit(CurrentLimit.kAzimuth)
-            .voltageCompensation(GlobalConstants.kVoltageCompensation)
-            .idleMode(IdleMode.kBrake);
-        m_azimuthEncConfig = new AbsoluteEncoderConfig();
-        m_azimuthEncConfig
-            .positionConversionFactor(Aziumth.kPositionFactor)
-            .velocityConversionFactor(Aziumth.kVelocityFactor);
-        m_motorConfigAz.absoluteEncoder.apply(m_azimuthEncConfig);
-            
-        m_azimuthEnc = m_azimuthMotor.getAbsoluteEncoder();
-        m_motorConfigAz.closedLoop
-            .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-            .p(Aziumth.kp)
-            .positionWrappingInputRange(0.0, 2*Math.PI)
-            .positionWrappingEnabled(true);
+                .smartCurrentLimit(CurrentLimit.kAzimuth)
+                .voltageCompensation(GlobalConstants.kVoltageCompensation)
+                .idleMode(IdleMode.kBrake);
         m_azimuthMotor.configure(m_motorConfigAz, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
+        m_analogEnc = new AnalogEncoder(encoderID);
+        m_offset = offset;
+        m_aziPID.enableContinuousInput(-Math.PI, Math.PI);
 
-        m_driveMotor = new SparkMax(moduleID, MotorType.kBrushless);
+        m_driveMotor = new SparkMax(driveID, MotorType.kBrushless);
         m_drivePID = m_driveMotor.getClosedLoopController();
         m_motorConfigDrive
-            .smartCurrentLimit(CurrentLimit.kDrive)
-            .voltageCompensation(GlobalConstants.kVoltageCompensation)
-            .idleMode(IdleMode.kBrake); 
+                .smartCurrentLimit(CurrentLimit.kDrive)
+                .voltageCompensation(GlobalConstants.kVoltageCompensation)
+                .idleMode(IdleMode.kBrake);
         m_driveEnc = m_driveMotor.getEncoder();
         m_motorConfigDrive.encoder
-            .positionConversionFactor(Drive.kGearRatio)
-            .velocityConversionFactor(Drive.kGearRatio/60);
+                .positionConversionFactor(Drive.kToMeters)
+                .velocityConversionFactor(Drive.kToMeters / 60.0);
         m_motorConfigDrive.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .p(Drive.kp)
@@ -76,13 +68,13 @@ public class SwerveModule extends SubsystemBase{
     }
 
     public SwerveModuleState getState() {
-        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getStateAngle()));
+        return new SwerveModuleState(getDriveVelocity(), getStateAngle());
     }
-
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getStateAngle()));
+        return new SwerveModulePosition(getDrivePosition(), getStateAngle());
     }
+
     public double getDriveVelocity() {
         return m_driveEnc.getVelocity();
     }
@@ -91,24 +83,32 @@ public class SwerveModule extends SubsystemBase{
         return m_driveEnc.getPosition();
     }
 
+
+
     /**
      * Sets the desired state for the module.
      *
      * @param desiredState Desired state with speed and angle.
      */
     public void setDesiredState(SwerveModuleState desiredState) {
-        SwerveModuleState state = SwerveModuleState.optimize(desiredState, new Rotation2d(getStateAngle()));
+        desiredState.optimize(getStateAngle());
 
-        m_drivePID.setReference(state.speedMetersPerSecond, ControlType.kVelocity);
-        m_azimuthPID.setReference(state.angle.getRadians(), ControlType.kPosition);
+        m_drivePID.setReference(desiredState.speedMetersPerSecond, ControlType.kVelocity);
+        double pidOutput = m_aziPID.calculate(getStateAngle().getRadians(), desiredState.angle.getRadians());
+
+        m_azimuthMotor.set(pidOutput);
+
     }
 
-    public double getStateAngle() {
-        return m_azimuthEnc.getPosition();
+    public Rotation2d getStateAngle() {
+        return new Rotation2d(m_analogEnc.get()*2*Math.PI+m_offset);
     }
 
     public void stop() {
         m_driveMotor.stopMotor();
         m_azimuthMotor.stopMotor();
     }
+
+
+    
 }

@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.reduxrobotics.sensors.canandgyro.Canandgyro;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -20,7 +22,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.*;
 import frc.robot.Constants.DriveConstants.FrontLeft;
 import frc.robot.Constants.DriveConstants.FrontRight;
-import frc.robot.Constants.DriveConstants.Gryo;
 import frc.robot.Constants.DriveConstants.KeepAngle;
 import frc.robot.Constants.DriveConstants.RearLeft;
 import frc.robot.Constants.DriveConstants.RearRight;
@@ -54,18 +55,18 @@ public class Drivetrain extends SubsystemBase {
   private SlewRateLimiter m_slewY = new SlewRateLimiter(DriveConstants.kTransSlewRate);
   private SlewRateLimiter m_slewRot = new SlewRateLimiter(DriveConstants.kRotSlewRate);
 
-  private final SwerveModule m_FLModule = new SwerveModule(FrontLeft.kModuleID, FrontLeft.kOffset);
-  private final SwerveModule m_FRModule = new SwerveModule(FrontRight.kModuleID, FrontRight.kOffset);
-  private final SwerveModule m_RLModule = new SwerveModule(RearLeft.kModuleID, RearLeft.kOffset);
-  private final SwerveModule m_RRModule = new SwerveModule(RearRight.kModuleID, RearRight.kOffset);
+  private final SwerveModule m_FLModule = new SwerveModule(FrontLeft.kAzimuth, FrontLeft.kDrive, FrontLeft.kEncoder, FrontLeft.kOffset);
+  private final SwerveModule m_FRModule = new SwerveModule(FrontRight.kAzimuth, FrontRight.kDrive, FrontRight.kEncoder, FrontRight.kOffset);
+  private final SwerveModule m_RLModule = new SwerveModule(RearLeft.kAzimuth, RearLeft.kDrive, RearLeft.kEncoder, RearLeft.kOffset);
+  private final SwerveModule m_RRModule = new SwerveModule(RearRight.kAzimuth, RearRight.kDrive, RearRight.kEncoder, RearRight.kOffset);
 
-  private final Canandgyro gryo = new Canandgyro(Gryo.kModuleID);
+  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
   private final SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(DriveConstants.kSwerveKinematics,
-      gryo.getRotation2d(), getModulePositions());
+      m_gyro.getRotation2d(), getModulePositions());
 
   private final SwerveDriveOdometry m_autoOdometry = new SwerveDriveOdometry(DriveConstants.kSwerveKinematics,
-      gryo.getRotation2d(), getModulePositions());
+      m_gyro.getRotation2d(), getModulePositions());
 
   private final double[] m_latestSlew = { 0.0, 0.0, 0.0 };
 
@@ -80,9 +81,8 @@ public class Drivetrain extends SubsystemBase {
     m_keepAngleTimer.reset();
     m_keepAngleTimer.start();
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
-        gryo.startCalibration();
-
-    m_odometry.resetPosition(gryo.getRotation2d(), getModulePositions(), new Pose2d());
+    m_gyro.reset();
+    m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), new Pose2d());
   }
 
   /**
@@ -158,10 +158,10 @@ public class Drivetrain extends SubsystemBase {
 
     SmartDashboard.putNumber("Speed", speed);
 
-    SmartDashboard.putNumber("Front Left Encoder", m_FLModule.getStateAngle());
-    SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle());
-    SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle());
-    SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle());
+    SmartDashboard.putNumber("Front Left Encoder", m_FLModule.getStateAngle().getRadians());
+    SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle().getRadians());
+    SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle().getRadians());
+    SmartDashboard.putNumber("Rear Right Encoder", m_RRModule.getStateAngle().getRadians());
     SmartDashboard.putNumber("Front Left Speed", m_FLModule.getDriveVelocity());
     SmartDashboard.putNumber("Front Right Speed", m_FRModule.getDriveVelocity());
     SmartDashboard.putNumber("Rear Left Speed", m_RLModule.getDriveVelocity());
@@ -221,15 +221,6 @@ public class Drivetrain extends SubsystemBase {
     m_RRModule.stop();
   }
 
-  public double getTilt() {
-    return gryo.getRoll();
-    // return MathUtils.pythagorean(gryo.getRoll(), gryo.getPitch());
-  }
-
-  public double getTiltVel() {
-    return gryo.getAngularVelocityYaw();
-  }
-
   public double getSpeed() {
     double xSpeed = getChassisSpeed().vxMetersPerSecond;
     double ySpeed = getChassisSpeed().vyMetersPerSecond;
@@ -244,11 +235,11 @@ public class Drivetrain extends SubsystemBase {
    * once per loop to minimize error.
    */
   public void updateOdometry() {
-    m_odometry.update(gryo.getRotation2d(), getModulePositions());
+    m_odometry.update(getGyro(), getModulePositions());
   }
 
   public void updateAutoOdometry() {
-    m_autoOdometry.update(gryo.getRotation2d(), getModulePositions());
+    m_autoOdometry.update(getGyro(), getModulePositions());
   }
 
   /**
@@ -257,7 +248,7 @@ public class Drivetrain extends SubsystemBase {
    * @return Rotation2d object containing Gyro angle
    */
   public Rotation2d getGyro() {
-    return gryo.getRotation2d().times(-1.0);
+    return m_gyro.getRotation2d().times(-1.0);
   }
 
   /**
@@ -289,15 +280,14 @@ public class Drivetrain extends SubsystemBase {
    * @param pose in which to set the odometry and gyro.
    */
   public void resetOdometry(Pose2d pose) {
-    gryo.startCalibration();
-    gryo.setYaw(-1.0*pose.getRotation().getDegrees());
+    m_gyro.setAngleAdjustment(-1.0*pose.getRotation().getDegrees());
     updateKeepAngle();
-    m_odometry.resetPosition(gryo.getRotation2d().times(-1.0), getModulePositions(), pose);
-    m_autoOdometry.resetPosition(gryo.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_odometry.resetPosition(getGyro(), getModulePositions(), pose);
+    m_autoOdometry.resetPosition(getGyro(), getModulePositions(), pose);
   }
 
   public void setPose(Pose2d pose) {
-    m_odometry.resetPosition(gryo.getRotation2d().times(-1.0), getModulePositions(), pose);
+    m_odometry.resetPosition(getGyro(), getModulePositions(), pose);
   }
 
 /**
