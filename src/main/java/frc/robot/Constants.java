@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public final class Constants {
   public static class OperatorConstants {
@@ -22,11 +23,19 @@ public final class Constants {
     public static final double kVelocityIn = 0;
     // Speed for disabling the rollers.
   }
-
-  public static class ShooterConstants {
-    public static final double kVelocity = 50;
-    public static final double kVelocityStop = 0;
-    public static final double kAngle = 50;
-    public static final double kAngleStop = 0;
+  
+    private final static ShooterSubsystem m_Shooter = new ShooterSubsystem();
+    
+        public static double getShooterAngle() {
+              return m_Shooter.getPosition();
+        }
+      
+        public static class ShooterConstants {
+          public static final double kVelocity = 50;
+          public static final double kVelocityStop = 0;
+          public static final double kAngle = 50;
+          public static final double kAngleStop = 0;
+          public static final double kShooterAngleUp = (getShooterAngle()-5);
+        public static final double kShooterAngleDown = (getShooterAngle()+5);
   }
 }

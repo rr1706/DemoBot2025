@@ -114,7 +114,7 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         private void ShootAngle() {
-            m_shooterAnglePID.setReference(Units.degreesToRotations(getPosition() + 5), ControlType.kPosition);
+            m_shooterAnglePID.setReference(Units.degreesToRotations(ShooterConstants.kShooterAngleUp), ControlType.kPosition);
         }
 
         private void ShootStop() {
@@ -122,7 +122,7 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         private void ShootAngleDown() {
-            m_shooterAnglePID.setReference(Units.degreesToRotations(getPosition() - 5), ControlType.kPosition);
+            m_shooterAnglePID.setReference(Units.degreesToRotations(ShooterConstants.kShooterAngleDown), ControlType.kPosition);
         }
 
     @Override
