@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+/*package frc.robot.subsystems;
 
 import com.revrobotics.spark.*;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -130,6 +130,6 @@ public class Shooter extends SubsystemBase {
     public Command stopCommand() {
         return runOnce(() -> stopFeeder());
     }
-}
+}*/
 
 

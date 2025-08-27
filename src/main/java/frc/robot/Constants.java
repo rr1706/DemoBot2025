@@ -60,7 +60,7 @@ public static final class DriveConstants {
     public static final int kDrive = 2;
     public static final int kAzimuth = 1;
     public static final int kEncoder = 0;
-    public static final double kOffset = 0.0;
+    public static final double kOffset = -1.94;
     public static final Translation2d kLocation = new Translation2d(0.5*kWheelBaseLength,0.5*kWheelBaseWidth );
   }
 
@@ -68,7 +68,7 @@ public static final class DriveConstants {
     public static final int kDrive = 4;
     public static final int kAzimuth = 3;
     public static final int kEncoder = 1;
-    public static final double kOffset = 0.0;
+    public static final double kOffset = -1.54;
     public static final Translation2d kLocation = new Translation2d(0.5*kWheelBaseLength, 0.5*kWheelBaseWidth);
   }
 
@@ -76,7 +76,7 @@ public static final class DriveConstants {
     public static final int kDrive = 8;
     public static final int kAzimuth = 7;
     public static final int kEncoder = 3;
-    public static final double kOffset = 0.0;
+    public static final double kOffset = -5.84;
     public static final Translation2d kLocation = new Translation2d(0.5*kWheelBaseLength, 0.5*kWheelBaseWidth);
   }
 
@@ -84,7 +84,7 @@ public static final class DriveConstants {
     public static final int kDrive = 6;
     public static final int kAzimuth = 5;
     public static final int kEncoder = 2;
-    public static final double kOffset = 0.0;
+    public static final double kOffset = -3.22;
     public static final Translation2d kLocation = new Translation2d(0.5*kWheelBaseLength, 0.5*kWheelBaseWidth);
   }
 
