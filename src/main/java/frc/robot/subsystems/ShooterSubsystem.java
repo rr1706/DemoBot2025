@@ -36,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
             .getDoubleTopic("/Shooter/Velocity");
     private DoublePublisher m_shooterPublish = m_shooterTopic.publish();
-    
+
     private DoubleTopic m_shooterAngleTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
             .getDoubleTopic("/Shooter/Angle");
     private DoublePublisher m_shooterAnglePublish = m_shooterAngleTopic.publish();
@@ -113,10 +113,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
         private void Shoot() {
             m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocity), ControlType.kVelocity);
-        }
-
-        private void ShootAngle() {
-            m_shooterAnglePID.setReference(Units.degreesToRotations(getSetAngle()), ControlType.kPosition);
         }
 
         private void ShootStop() {
