@@ -41,6 +41,10 @@ public class RobotContainer {
       // Gets current angle the Intake is at.
   }
 
+  public double getIntakeVelocity() {
+    return m_Intake.getVelocity();
+  }
+
   public double getShooterVelocity() {
     return m_Shooter.getVelocity();
   }

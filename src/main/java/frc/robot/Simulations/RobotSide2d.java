@@ -51,5 +51,9 @@ public class RobotSide2d {
     public void updateDisplayPose2(double IntakeVelocity) {
         m_IntakeRoller.setAngle(90-Units.rotationsToDegrees(IntakeVelocity));
     }
-
+    
+   /* public void updateDisplayPose3(double IntakeAngle) {
+        m_ShooterAngle.setAngle.setAngle(90-Units.rotationsToDegrees(IntakeAngle));
+    }
+        */
 }
