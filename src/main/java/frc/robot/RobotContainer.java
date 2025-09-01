@@ -1,10 +1,8 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.IntakeOutCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 import javax.lang.model.util.ElementScanner14;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -29,15 +27,17 @@ public class RobotContainer {
 
   private void configureBindings() {
   
-    m_driverController.rightBumper().and(m_driverController.a()).whileTrue(m_Intake.intakeOutCommand()).onFalse(m_Intake.intakeInCommand());
+    m_driverController.rightBumper().whileTrue(m_Intake.intakeOutCommand()).onFalse(m_Intake.intakeInCommand());
     // Intake In Command is set for when Right Bumber is not pressed 
 
     m_driverController.leftTrigger().whileTrue(m_Shooter.ShootCommand()).onFalse(m_Shooter.ShootCommandStop());
     // Shoot command is set for when left trigger is pressed
 
-    m_driverController.povUp().whileTrue(m_Shooter.ShooterAngleAjustUpCommand());
+    m_driverController.povUp().onTrue(m_Shooter.changePitch(5));
 
-    m_driverController.povDown().whileTrue(m_Shooter.ShooterAngleAjustDownCommand());
+  m_driverController.povDown().onFalse(m_Shooter.changePitch(-5));
+
+    m_driverController.a().whileTrue(m_Shooter.ShootAngleCommand());
   }
 
   public double getIntakeAngle() {

@@ -31,10 +31,12 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private SparkMax m_Shooter = new SparkMax(m_shooterPort, MotorType.kBrushless);
     private SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
+    public double m_angle = 50.0;
 
     private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
             .getDoubleTopic("/Shooter/Velocity");
     private DoublePublisher m_shooterPublish = m_shooterTopic.publish();
+    
     private DoubleTopic m_shooterAngleTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
             .getDoubleTopic("/Shooter/Angle");
     private DoublePublisher m_shooterAnglePublish = m_shooterAngleTopic.publish();
@@ -114,15 +116,11 @@ public class ShooterSubsystem extends SubsystemBase {
         }
 
         private void ShootAngle() {
-            m_shooterAnglePID.setReference(Units.degreesToRotations(ShooterConstants.kShooterAngleUp), ControlType.kPosition);
+            m_shooterAnglePID.setReference(Units.degreesToRotations(getSetAngle()), ControlType.kPosition);
         }
 
         private void ShootStop() {
             m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocityStop), ControlType.kVelocity);
-        }
-
-        private void ShootAngleDown() {
-            m_shooterAnglePID.setReference(Units.degreesToRotations(ShooterConstants.kShooterAngleDown), ControlType.kPosition);
         }
 
     @Override
@@ -145,15 +143,6 @@ public class ShooterSubsystem extends SubsystemBase {
         return Position;
     }
 
-    public Command ShootCommand2() {
-        return this.runEnd(() -> {
-                
-        {m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocity), ControlType.kVelocity);}
-                    
-        }, () -> {m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocityStop), ControlType.kVelocity);});
-            
-        }
-
     public Command ShootCommand() {
         return this.run(() -> this.Shoot());
     }
@@ -162,12 +151,18 @@ public class ShooterSubsystem extends SubsystemBase {
         return this.run(() -> this.ShootStop());
     }
 
-    public Command ShooterAngleAjustUpCommand() {
-        return this.run(() -> this.ShootAngle());
+    public Command changePitch(double adjust) {
+        return runOnce(() -> {
+            m_angle += adjust;
+        });
     }
 
-    public Command ShooterAngleAjustDownCommand() {
-        return this.run(() -> this.ShootAngleDown());
+    public double getSetAngle() {
+        return m_angle;
     }
+
+public Command ShootAngleCommand() {
+    return this.run(() ->  m_shooterAnglePID.setReference(Units.degreesToRotations(getSetAngle()), ControlType.kPosition));
+}
 }
 

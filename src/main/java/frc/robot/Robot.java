@@ -97,5 +97,6 @@ public class Robot extends TimedRobot {
   public void simulationPeriodic() {
     RobotDisplay.updateDisplayPose(m_robotContainer.getIntakeAngle());
     RobotDisplay.updateDisplayPose(m_robotContainer.getShooterVelocity());
+    RobotDisplay.updateDisplayPose(m_robotContainer.getShooterAngle());
   }
 }
