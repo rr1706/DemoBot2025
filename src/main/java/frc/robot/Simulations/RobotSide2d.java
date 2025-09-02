@@ -20,6 +20,7 @@ public class RobotSide2d {
 
     private static double IntakeLenght = Units.inchesToMeters(24);
     private static double RollerLenght = Units.inchesToMeters(5);
+    private static double ShooterLength = Units.inchesToMeters(5);
 
     private final Mechanism2d m_mech2d = new Mechanism2d(DisplayLenght, DisplayHeight);
     // Create Robot Frame root point 8in form the left side and 2in off the ground.
@@ -30,8 +31,12 @@ public class RobotSide2d {
     // Create Elevator root point.
     private final MechanismRoot2d m_Intake2dRootUpper = m_mech2d.getRoot("Intake Root Upper", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
     private final MechanismLigament2d m_Intake2dUpper = m_Intake2dRootUpper.append(new MechanismLigament2d("Intake Upper", IntakeLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));
-    private final MechanismRoot2d m_IntakeRootRoller = m_mech2d.getRoot("Intake Root Roller", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(24)));
+
+    private final MechanismRoot2d m_IntakeRootRoller = m_mech2d.getRoot("Intake Root Roller", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(20)));
     private final MechanismLigament2d m_IntakeRoller = m_IntakeRootRoller.append(new MechanismLigament2d("Intake Roller", RollerLenght, 90, 8.5, new Color8Bit(Color.kRed)));
+
+    private final MechanismRoot2d m_ShooterRootAngle = m_mech2d.getRoot("Shooter Root", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(24)));
+    private final MechanismLigament2d m_ShooterAngleA = m_ShooterRootAngle.append(new MechanismLigament2d("Shooter", ShooterLength, 90, 6.0, new Color8Bit(Color.kAntiqueWhite)));
 
     private final MechanismRoot2d m_Intake2dRootLower = m_mech2d.getRoot("Intake Root Lower", (RobotFrameLength - Units.inchesToMeters(2)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(0)));
     private final MechanismLigament2d m_Intake2dLower = m_Intake2dRootLower.append(new MechanismLigament2d("Intake Lower", IntakeLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));

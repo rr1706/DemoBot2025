@@ -110,13 +110,12 @@ public class ShooterSubsystem extends SubsystemBase {
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_shooterFlyWheelSim.getCurrentDrawAmps()));
     }
 
-
         private void Shoot() {
             m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocity), ControlType.kVelocity);
         }
 
         private void ShootStop() {
-            m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocityStop), ControlType.kVelocity);
+            m_shooterPID.setReference(Units.degreesToRotations((ShooterConstants.kVelocityStop)), ControlType.kVelocity);
         }
 
     @Override
@@ -157,7 +156,7 @@ public class ShooterSubsystem extends SubsystemBase {
         return m_angle;
     }
 
-public Command ShootAngleCommand() {
+    public Command ShootAngleCommand() {
     return this.run(() ->  m_shooterAnglePID.setReference(Units.degreesToRotations(getSetAngle()), ControlType.kPosition));
 }
 }

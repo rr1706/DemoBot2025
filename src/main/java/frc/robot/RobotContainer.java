@@ -26,14 +26,14 @@ public class RobotContainer {
     m_driverController.rightBumper().whileTrue(m_Intake.intakeOutCommand()).onFalse(m_Intake.intakeInCommand());
     // Intake In Command is set for when Right Bumber is not pressed 
 
-    m_driverController.leftTrigger().whileTrue(m_Shooter.ShootCommand()).onFalse(m_Shooter.ShootCommandStop());
+    m_driverController.rightTrigger().whileTrue(m_Shooter.ShootCommand()).onFalse(m_Shooter.ShootCommandStop());
     // Shoot command is set for when left trigger is pressed
 
     m_driverController.povUp().onTrue(m_Shooter.changePitch(5));
 
-  m_driverController.povDown().onFalse(m_Shooter.changePitch(-5));
+    m_driverController.povDown().onFalse(m_Shooter.changePitch(-5));
 
-    m_driverController.a().whileTrue(m_Shooter.ShootAngleCommand());
+    m_driverController.leftTrigger().whileTrue(m_Shooter.ShootAngleCommand());
   }
 
   public double getIntakeAngle() {
