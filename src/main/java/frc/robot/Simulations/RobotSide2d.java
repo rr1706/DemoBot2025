@@ -36,7 +36,7 @@ public class RobotSide2d {
     private final MechanismLigament2d m_IntakeRoller = m_IntakeRootRoller.append(new MechanismLigament2d("Intake Roller", RollerLenght, 90, 8.5, new Color8Bit(Color.kRed)));
 
     private final MechanismRoot2d m_ShooterRootAngle = m_mech2d.getRoot("Shooter Root", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(24)));
-    private final MechanismLigament2d m_ShooterAngleA = m_ShooterRootAngle.append(new MechanismLigament2d("Shooter", ShooterLength, 90, 6.0, new Color8Bit(Color.kAntiqueWhite)));
+    private final MechanismLigament2d m_ShooterAngle = m_ShooterRootAngle.append(new MechanismLigament2d("Shooter", ShooterLength, 90, 6.0, new Color8Bit(Color.kAntiqueWhite)));
 
     private final MechanismRoot2d m_Intake2dRootLower = m_mech2d.getRoot("Intake Root Lower", (RobotFrameLength - Units.inchesToMeters(2)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(0)));
     private final MechanismLigament2d m_Intake2dLower = m_Intake2dRootLower.append(new MechanismLigament2d("Intake Lower", IntakeLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));

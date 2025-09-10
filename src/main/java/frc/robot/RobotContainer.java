@@ -23,7 +23,7 @@ public class RobotContainer {
 
   private void configureBindings() {
   
-    m_driverController.rightBumper().whileTrue(m_Intake.intakeOutCommand()).onFalse(m_Intake.intakeInCommand());
+    m_driverController.rightBumper().onTrue(m_Intake.intakeOutCommand2());
     // Intake In Command is set for when Right Bumber is not pressed 
 
     m_driverController.rightTrigger().whileTrue(m_Shooter.ShootCommand()).onFalse(m_Shooter.ShootCommandStop());
@@ -33,7 +33,8 @@ public class RobotContainer {
 
     m_driverController.povDown().onFalse(m_Shooter.changePitch(-5));
 
-    m_driverController.leftTrigger().whileTrue(m_Shooter.ShootAngleCommand());
+    m_driverController.leftTrigger().onTrue(m_Shooter.ShootAngleCommand());
+
   }
 
   public double getIntakeAngle() {

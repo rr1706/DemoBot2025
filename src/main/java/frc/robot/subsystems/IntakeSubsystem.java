@@ -48,11 +48,12 @@ public class IntakeSubsystem extends SubsystemBase {
     private final SparkMaxConfig m_rollerMotorConfig = new SparkMaxConfig();
     // Creates the motors configurations.
 
-    private final SparkClosedLoopController m_rotatePID;
+    public final SparkClosedLoopController m_rotatePID;
     private final SparkClosedLoopController m_rollerPID;
 
     private final static int m_rotatePort = 1;
     // Rotation Port, could be changed.
+    
     private final static int m_rollerPort = 2;
     // Roller port, could be changed.
 
@@ -94,8 +95,8 @@ public class IntakeSubsystem extends SubsystemBase {
         m_rotateMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .p(0.08)
-                .i(0)
-                .d(0)
+                .i(0.0)
+                .d(0.0)
                 .outputRange(-1, 1);
         m_rotateMotorConfig.idleMode(IdleMode.kBrake);
         m_rotate.configure(m_rotateMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -151,7 +152,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void IntakeRoller(double target) {
 
-        m_rollerPID.setReference(Units.degreesToRotations(IntakeConstants.kVelocity), ControlType.kVelocity);
+        m_rollerPID.setReference(Units.degreesToRotations(target), ControlType.kVelocity);
         // Allows you to change target value later in code for the roller motor.
     }
 
@@ -175,7 +176,7 @@ public class IntakeSubsystem extends SubsystemBase {
                     m_rotate = null;
             }
             if (Math.abs(getAngle() - IntakeConstants.kOut) < 1) {
-                IntakeRoller(IntakeConstants.kVelocity);
+               // IntakeRoller(IntakeConstants.kVelocity);
                 // Sets volocity & Angle for Roller & Rotation Motors
             }
         }, () -> {m_rotatePID.setReference(Units.degreesToRotations(IntakeConstants.kIn), ControlType.kPosition); 
@@ -183,14 +184,16 @@ public class IntakeSubsystem extends SubsystemBase {
      }
     
     private void IntakeOut() {
-        IntakeRotate(IntakeConstants.kOut);
-            IntakeRoller(IntakeConstants.kVelocity);
+        m_rotatePID.setReference(Units.degreesToRotations(-60), ControlType.kPosition);
+        //IntakeRotate(60);
+            //IntakeRoller(IntakeConstants.kVelocity);
             // Sets volocity & Angle for Roller & Rotation Motors
     }
 
     private void IntakeIn() {
-        IntakeRotate(IntakeConstants.kIn);
-            IntakeRoller(IntakeConstants.kVelocityIn);
+        m_rotatePID.setReference(Units.degreesToRotations(0), ControlType.kPosition);
+       // IntakeRotate(0);
+       //     IntakeRoller(IntakeConstants.kVelocityIn);
             // Sets volocity & Angle for Roller & Rotation Motors
     }
 
