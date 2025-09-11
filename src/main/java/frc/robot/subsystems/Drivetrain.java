@@ -10,13 +10,19 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.controllers.PPLTVController;
 import com.reduxrobotics.sensors.canandgyro.Canandgyro;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.Constants.*;
@@ -77,13 +83,51 @@ public class Drivetrain extends SubsystemBase {
    * Constructs a Drivetrain and resets the Gyro and Keep Angle parameters
    */
   public Drivetrain() {
+    
+    RobotConfig config;
+    try{
+      config = RobotConfig.fromGUISettings();
+      AutoBuilder.configure(
+        this::getPose, // Robot pose supplier
+        this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+        this::getChassisSpeed, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+        (speeds, feedforwards) -> drive(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+        new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+        ),
+        config, // The robot configuration
+        () -> {
+          // Boolean supplier that controls when the path will be mirrored for the red alliance
+          // This will flip the path being followed to the red side of the field.
+          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this // Reference to this subsystem to set requirements
+);
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
 
     m_keepAngleTimer.reset();
     m_keepAngleTimer.start()  ;
     m_keepAnglePID.enableContinuousInput(-Math.PI, Math.PI);
     m_gyro.reset();
     m_odometry.resetPosition(m_gyro.getRotation2d(), getModulePositions(), new Pose2d());
+
+
+    
   }
+
+
+
+  
 
   /**
    * Method to drive the robot using joystick info.
@@ -353,6 +397,14 @@ public ChassisSpeeds getChassisSpeed() {
   public SwerveModulePosition[] getModulePositions() {
     return new SwerveModulePosition[] { m_FLModule.getPosition(), m_FRModule.getPosition(), m_RLModule.getPosition(),
         m_RRModule.getPosition() };
+  }
+
+  public void resetOdometry(Rotation2d angle) {
+    m_gyro.reset();
+    m_gyro.setAngleAdjustment(angle.getDegrees());
+    Pose2d pose = new Pose2d(getPose().getTranslation(), angle);
+    updateKeepAngle();
+    m_odometry.resetPosition(m_gyro.getRotation2d().times(-1.0), getModulePositions(), pose);
   }
 
 
