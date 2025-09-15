@@ -23,7 +23,7 @@ public class RobotContainer {
 
   private void configureBindings() {
   
-    m_driverController.rightBumper().onTrue(m_Intake.intakeOutCommand2());
+    m_driverController.rightBumper().onTrue(m_Intake.intakeOutCommand()).onFalse(m_Intake.intakeInCommand());
     // Intake In Command is set for when Right Bumber is not pressed 
 
     m_driverController.rightTrigger().whileTrue(m_Shooter.ShootCommand()).onFalse(m_Shooter.ShootCommandStop());
