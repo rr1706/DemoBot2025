@@ -25,12 +25,12 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.shooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private SparkMax m_Shooter = new SparkMax(m_shooterPort, MotorType.kBrushless);
-    private SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
+    private final SparkMax m_Shooter = new SparkMax(m_shooterPort, MotorType.kBrushless);
+    private final SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
     public double m_angle = 50.0;
 
     private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
@@ -111,11 +111,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
         private void Shoot() {
-            m_shooterPID.setReference(Units.degreesToRotations(ShooterConstants.kVelocity), ControlType.kVelocity);
+            m_shooterPID.setReference(Units.degreesToRotations(shooterConstants.kVelocity), ControlType.kVelocity);
         }
 
         private void ShootStop() {
-            m_shooterPID.setReference(Units.degreesToRotations((ShooterConstants.kVelocityStop)), ControlType.kVelocity);
+            m_shooterPID.setReference(Units.degreesToRotations((shooterConstants.kVelocityStop)), ControlType.kVelocity);
         }
 
     @Override

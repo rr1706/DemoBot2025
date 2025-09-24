@@ -9,8 +9,8 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 
 public class RobotContainer {
-  private final IntakeSubsystem m_Intake = new IntakeSubsystem();
-  private final ShooterSubsystem m_Shooter = new ShooterSubsystem();
+  private final IntakeSubsystem m_intake = new IntakeSubsystem();
+  private final ShooterSubsystem m_shooter = new ShooterSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -23,35 +23,35 @@ public class RobotContainer {
 
   private void configureBindings() {
   
-    m_driverController.rightBumper().onTrue(m_Intake.intakeOutCommand()).onFalse(m_Intake.intakeInCommand());
+    m_driverController.rightBumper().onTrue(m_intake.intakeOutCommand()).onFalse(m_intake.intakeInCommand());
     // Intake In Command is set for when Right Bumber is not pressed 
 
-    m_driverController.rightTrigger().whileTrue(m_Shooter.ShootCommand()).onFalse(m_Shooter.ShootCommandStop());
+    m_driverController.rightTrigger().whileTrue(m_shooter.ShootCommand()).onFalse(m_shooter.ShootCommandStop());
     // Shoot command is set for when left trigger is pressed
 
-    m_driverController.povUp().onTrue(m_Shooter.changePitch(5));
+    m_driverController.povUp().onTrue(m_shooter.changePitch(5));
 
-    m_driverController.povDown().onFalse(m_Shooter.changePitch(-5));
+    m_driverController.povDown().onFalse(m_shooter.changePitch(-5));
 
-    m_driverController.leftTrigger().onTrue(m_Shooter.ShootAngleCommand());
+    m_driverController.leftTrigger().onTrue(m_shooter.ShootAngleCommand());
 
   }
 
   public double getIntakeAngle() {
-    return m_Intake.getAngle();
+    return m_intake.getAngle();
       // Gets current angle the Intake is at.
   }
 
   public double getIntakeVelocity() {
-    return m_Intake.getVelocity();
+    return m_intake.getVelocity();
   }
 
   public double getShooterVelocity() {
-    return m_Shooter.getVelocity();
+    return m_shooter.getVelocity();
   }
 
   public double getShooterAngle() {
-    return m_Shooter.getPosition();
+    return m_shooter.getPosition();
   }
 
   public Command getAutonomousCommand() {

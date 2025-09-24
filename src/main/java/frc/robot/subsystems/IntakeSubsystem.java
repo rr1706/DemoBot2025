@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.intakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -171,29 +171,29 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command intakeOutCommand2() {
         return this.runEnd(() -> {
             SmartDashboard.getBoolean("Out", out);
-            IntakeRotate(IntakeConstants.kOut);
-            if (Math.abs(IntakeConstants.kOut) < 1) {
+            IntakeRotate(intakeConstants.kOut);
+            if (Math.abs(intakeConstants.kOut) < 1) {
                     m_rotate = null;
             }
-            if (Math.abs(getAngle() - IntakeConstants.kOut) < 1) {
-               // IntakeRoller(IntakeConstants.kVelocity);
+            if (Math.abs(getAngle() - intakeConstants.kOut) < 1) {
+               // IntakeRoller(intakeConstants.kVelocity);
                 // Sets volocity & Angle for Roller & Rotation Motors
             }
-        }, () -> {m_rotatePID.setReference(Units.degreesToRotations(IntakeConstants.kIn), ControlType.kPosition); 
-                    m_rollerPID.setReference(Units.degreesToRotations(IntakeConstants.kVelocityIn), ControlType.kVelocity);});
+        }, () -> {m_rotatePID.setReference(Units.degreesToRotations(intakeConstants.kIn), ControlType.kPosition); 
+                    m_rollerPID.setReference(Units.degreesToRotations(intakeConstants.kVelocityIn), ControlType.kVelocity);});
      }
     
     private void IntakeOut() {
         m_rotatePID.setReference(Units.degreesToRotations(-60), ControlType.kPosition);
         //IntakeRotate(60);
-            //IntakeRoller(IntakeConstants.kVelocity);
+            //IntakeRoller(intakeConstants.kVelocity);
             // Sets volocity & Angle for Roller & Rotation Motors
     }
 
     private void IntakeIn() {
         m_rotatePID.setReference(Units.degreesToRotations(0), ControlType.kPosition);
        // IntakeRotate(0);
-       //     IntakeRoller(IntakeConstants.kVelocityIn);
+       //     IntakeRoller(intakeConstants.kVelocityIn);
             // Sets volocity & Angle for Roller & Rotation Motors
     }
 
