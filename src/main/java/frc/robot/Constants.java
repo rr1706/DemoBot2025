@@ -13,7 +13,7 @@ public final class Constants {
   public static class shooterConstants {
           public static final double kVelocity = 0.5;
           public static final double kVelocityStop = 0;
-          public static final double kAngle = 0.125;
+          public static final double kAngle = 40;
           public static final double kAngleStop = 0.5;
           public static final double kVelocityIntake = -0;
           public static final double kVelocityIntakeStop = 0;
