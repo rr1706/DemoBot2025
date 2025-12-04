@@ -22,16 +22,18 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.shooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
     private final SparkMax m_Shooter = new SparkMax(m_shooterPort, MotorType.kBrushless);
     private final SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
-    public double m_angle = 50.0;
+    private double m_angle = 0.125;
 
     private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
             .getDoubleTopic("/Shooter/Velocity");
@@ -65,6 +67,18 @@ public class ShooterSubsystem extends SubsystemBase {
     private final FlywheelSim m_shooterFlyWheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 1, m_shooterGearing),
                                          DCMotor.getNEO(1).withReduction(m_shooterGearing), 
                                          0.0);
+     private final SparkMaxSim m_shooterAngleSim = new SparkMaxSim(m_ShooterAngle, DCMotor.getNEO(1));
+    private final SparkRelativeEncoderSim m_ShooterEncoderSim = new SparkRelativeEncoderSim(m_ShooterAngle);
+    private final SingleJointedArmSim m_ShooterArmSim = new SingleJointedArmSim(DCMotor.getNEO(1),
+            m_shooterAngleGearing,
+            SingleJointedArmSim.estimateMOI(Units.inchesToMeters(12), Units.lbsToKilograms(4)),
+            Units.inchesToMeters(12),
+            0,
+            Math.PI / 2,
+            true,
+            Math.PI / 2,
+            0.0, 0.0);
+
     
 
     public ShooterSubsystem() {
@@ -108,10 +122,25 @@ public class ShooterSubsystem extends SubsystemBase {
         m_shooterEncoderSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_shooterFlyWheelSim.getAngularVelocityRadPerSec()),
                 0.2);
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_shooterFlyWheelSim.getCurrentDrawAmps()));
+
+        m_ShooterArmSim.setInputVoltage(m_shooterAngleSim.getAppliedOutput() * RobotController.getBatteryVoltage());
+        m_ShooterArmSim.update(0.02);
+        m_shooterAngleSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_ShooterArmSim.getVelocityRadPerSec()),
+                RoboRioSim.getVInVoltage(), 0.2);
+        m_ShooterEncoderSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_ShooterArmSim.getVelocityRadPerSec()),
+                0.2);
     }
 
         private void Shoot() {
-            m_shooterPID.setReference(Units.degreesToRotations(shooterConstants.kVelocity), ControlType.kVelocity);
+            m_shooterPID.setReference(shooterConstants.kVelocity, ControlType.kVelocity);
+        }
+
+        private void Intake() {
+            m_shooterPID.setReference(shooterConstants.kVelocityIntake, ControlType.kVelocity);
+        }
+
+        private void IntakeStop() {
+            m_shooterPID.setReference(shooterConstants.kVelocityIntakeStop, ControlType.kVelocity);
         }
 
         private void ShootStop() {
@@ -122,8 +151,14 @@ public class ShooterSubsystem extends SubsystemBase {
     public void periodic() {
         m_shooterAnglePublish.set(Units.rotationsToDegrees(getPosition()));
                 // Converts to correct unit then published to SmartDashboard.
+                SmartDashboard.putNumber("setAngle", m_angle);
+
 
         m_shooterPublish.set(Units.rotationsToDegrees(getVelocity()));
+        SmartDashboard.getNumber("shooter Angle", getPosition());
+        m_shooterAnglePID.setReference(m_angle, ControlType.kPosition);
+
+
     }
 
     public double getVelocity() {
@@ -134,14 +169,22 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public double getPosition() {
         double Position = m_shooterAngleEncoder.getPosition();
-        SmartDashboard.getNumber("shooter Angle", Position);
+        SmartDashboard.getNumber("Shooter Position", Position);
         return Position;
     }
 
     public Command ShootCommand() {
         return this.run(() -> this.Shoot());
     }
-        
+    
+    public Command IntakeCommand() {
+        return this.run(() -> this.Intake());
+    }
+
+    public Command IntakeCommandStop() {
+        return this.run(() -> this.IntakeStop());
+    }
+
     public Command ShootCommandStop() {
         return this.run(() -> this.ShootStop());
     }
@@ -152,12 +195,12 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     }
 
-    public double getSetAngle() {
-        return m_angle;
+    public void setAngle(double angle) {
+        m_shooterAnglePID.setReference(angle, ControlType.kPosition);
     }
 
     public Command ShootAngleCommand() {
-    return this.run(() ->  m_shooterAnglePID.setReference(Units.degreesToRotations(getSetAngle()), ControlType.kPosition));
-}
+    return this.run(() ->  setAngle(5.0));
+    }
 }
 

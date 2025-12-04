@@ -1,15 +1,15 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 
 public class RobotContainer {
-  private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -23,8 +23,10 @@ public class RobotContainer {
 
   private void configureBindings() {
   
-    m_driverController.rightBumper().whileTrue(m_intake.intakeOutCommand()).onFalse(m_intake.intakeInCommand());
+    //m_driverController.rightBumper().whileTrue(m_intake.intakeOutCommand()).onFalse(m_intake.intakeInCommand());
     // Intake In Command is set for when Right Bumber is not pressed 
+
+    m_driverController.rightBumper().whileTrue(m_shooter.IntakeCommand()).onFalse(m_shooter.IntakeCommandStop());
 
     m_driverController.rightTrigger().whileTrue(m_shooter.ShootCommand()).onFalse(m_shooter.ShootCommandStop());
     // Shoot command is set for when left trigger is pressed
@@ -35,15 +37,6 @@ public class RobotContainer {
 
     m_driverController.leftTrigger().onTrue(m_shooter.ShootAngleCommand());
 
-  }
-
-  public double getIntakeAngle() {
-    return m_intake.getAngle();
-      // Gets current angle the Intake is at.
-  }
-
-  public double getIntakeVelocity() {
-    return m_intake.getVelocity();
   }
 
   public double getShooterVelocity() {
