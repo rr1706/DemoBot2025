@@ -37,7 +37,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
         //Creates the pitchers motor.
 
-    private double m_angle = 40;
+    private double m_angle = Constants.shooterConstants.kangle;
         //Creates the angle var thats used for setting angle and adjust.
 
     private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
