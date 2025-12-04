@@ -44,9 +44,12 @@ public class IntakeSubsystem extends SubsystemBase {
     boolean out = true;
     // Roller Motor
 
+
     private final SparkMaxConfig m_rotateMotorConfig = new SparkMaxConfig();
     private final SparkMaxConfig m_rollerMotorConfig = new SparkMaxConfig();
     // Creates the motors configurations.
+
+    private double m_setPoint = getAngle();
 
     public final SparkClosedLoopController m_rotatePID;
     private final SparkClosedLoopController m_rollerPID;
@@ -94,14 +97,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
         m_rotateMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .p(0.08)
-                .i(0.0)
-                .d(0.0)
-                .outputRange(-1, 1);
+                .p(intakeConstants.kRotateP)
+                .i(intakeConstants.kRotateI)
+                .d(intakeConstants.kRotateD)
+                .outputRange(-0.01, 0.01);
         m_rotateMotorConfig.idleMode(IdleMode.kBrake);
         m_rotate.configure(m_rotateMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
-        
+       
+
         m_rollerPID = m_roller.getClosedLoopController();
         
 
@@ -143,11 +147,21 @@ public class IntakeSubsystem extends SubsystemBase {
         m_rollerAnglePublish.set(Units.rotationsToDegrees(getVelocity()));
                 // Converts to correct unit then published to SmartDashboard.
     }
+    
+    public void IntakeRotate(double m_setPoint) {
 
-    public void IntakeRotate(double target) {
-
-        m_rotatePID.setReference(Units.degreesToRotations(target), ControlType.kPosition);
+        m_rotatePID.setReference(Units.degreesToRotations(m_setPoint), ControlType.kPosition);
         // Allows you to change target value later in code for the rotation motor.
+    }
+
+    public void setPosition(double position) {
+        m_setPoint = position;
+        if (m_setPoint > intakeConstants.kUpLimit) {
+            m_setPoint = intakeConstants.kUpLimit;
+        } else if (m_setPoint < intakeConstants.kLowerLimit) {
+            m_setPoint = intakeConstants.kLowerLimit;
+        }
+        m_rotatePID.setReference(Units.degreesToRotations(m_setPoint), ControlType.kPosition);
     }
 
     public void IntakeRoller(double target) {
@@ -167,26 +181,10 @@ public class IntakeSubsystem extends SubsystemBase {
         SmartDashboard.getNumber("Roller Velocity", Velocity);
         return Velocity;
     }
-
-    public Command intakeOutCommand2() {
-        return this.runEnd(() -> {
-            SmartDashboard.getBoolean("Out", out);
-            IntakeRotate(intakeConstants.kOut);
-            if (Math.abs(intakeConstants.kOut) < 1) {
-                    m_rotate = null;
-            }
-            if (Math.abs(getAngle() - intakeConstants.kOut) < 1) {
-               // IntakeRoller(intakeConstants.kVelocity);
-                // Sets volocity & Angle for Roller & Rotation Motors
-            }
-        }, () -> {m_rotatePID.setReference(Units.degreesToRotations(intakeConstants.kIn), ControlType.kPosition); 
-                    m_rollerPID.setReference(Units.degreesToRotations(intakeConstants.kVelocityIn), ControlType.kVelocity);});
-     }
     
     private void IntakeOut() {
-        m_rotatePID.setReference(Units.degreesToRotations(-60), ControlType.kPosition);
-        //IntakeRotate(60);
-            //IntakeRoller(intakeConstants.kVelocity);
+        setPosition(50);
+            IntakeRoller(intakeConstants.kVelocity);
             // Sets volocity & Angle for Roller & Rotation Motors
     }
 
@@ -206,4 +204,5 @@ public class IntakeSubsystem extends SubsystemBase {
         return this.run(() -> this.IntakeOut());
         // Creates command for moving intake in.
     }
+
 }

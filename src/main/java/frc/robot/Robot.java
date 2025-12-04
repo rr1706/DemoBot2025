@@ -96,7 +96,7 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {
     RobotDisplay.updateDisplayPose(m_robotContainer.getIntakeAngle());
-    RobotDisplay.updateDisplayPose2(m_robotContainer.getIntakeVelocity());
+    //RobotDisplay.updateDisplayPose2(m_robotContainer.getIntakeVelocity());
     //RobotDisplay.updateDisplayPose3(m_robotContainer.getShooterAngle());
     //RobotDisplay.updateDisplayPose4(m_robotContainer.getShooterVelocity());
   }

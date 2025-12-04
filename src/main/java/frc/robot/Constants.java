@@ -14,6 +14,12 @@ public final class Constants {
     public static final double kVelocity = 5;
     public static final double kIn = 0;
     public static final double kVelocityIn = 0;
+    public static final double kRotateP = 0.008;
+    public static final double kRotateI = 0.02;
+    public static final double kRotateD = 0.009;
+    public static final double kRotateG = 10;
+    public static final double kUpLimit = 70;
+    public static final double kLowerLimit = -10;
   }
   
   public static class shooterConstants {
