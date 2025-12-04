@@ -182,7 +182,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public double getPosition() {
         double Position = m_shooterAngleEncoder.getPosition();
         SmartDashboard.getNumber("Shooter Position", Position);
-        return Position;
+        return Units.rotationsToDegrees(Position);
     }
 
     public Command ShootCommand() {
