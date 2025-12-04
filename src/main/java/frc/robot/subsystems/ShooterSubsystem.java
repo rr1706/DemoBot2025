@@ -32,15 +32,22 @@ import frc.robot.Constants.shooterConstants;
 public class ShooterSubsystem extends SubsystemBase {
 
     private final SparkMax m_Shooter = new SparkMax(m_shooterPort, MotorType.kBrushless);
+        //Creates the shooters motor.
+
     private final SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
-    private double m_angle = 0.125;
+        //Creates the pitchers motor.
+
+    private double m_angle = 40;
+        //Creates the angle var thats used for setting angle and adjust.
 
     private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
             .getDoubleTopic("/Shooter/Velocity");
+        //Creates location on the smartdaskboard for shooter.
     private DoublePublisher m_shooterPublish = m_shooterTopic.publish();
 
     private DoubleTopic m_shooterAngleTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
             .getDoubleTopic("/Shooter/Angle");
+        //Creates location on the smartdashboard for the pitcher.
     private DoublePublisher m_shooterAnglePublish = m_shooterAngleTopic.publish();
 
     private final SparkMaxConfig m_shooterMotorConfig = new SparkMaxConfig();
@@ -62,11 +69,14 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder m_shooterAngleEncoder = m_ShooterAngle.getEncoder();
 
     
+        //Simulation setup (shooter)
     private final SparkMaxSim m_shooterSim = new SparkMaxSim(m_Shooter, DCMotor.getNEO(1));
     private final SparkRelativeEncoderSim m_shooterEncoderSim = new SparkRelativeEncoderSim(m_Shooter);
     private final FlywheelSim m_shooterFlyWheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 1, m_shooterGearing),
                                          DCMotor.getNEO(1).withReduction(m_shooterGearing), 
                                          0.0);
+
+        //Simulations setup (pitcher)
      private final SparkMaxSim m_shooterAngleSim = new SparkMaxSim(m_ShooterAngle, DCMotor.getNEO(1));
     private final SparkRelativeEncoderSim m_ShooterEncoderSim = new SparkRelativeEncoderSim(m_ShooterAngle);
     private final SingleJointedArmSim m_ShooterArmSim = new SingleJointedArmSim(DCMotor.getNEO(1),
@@ -115,6 +125,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
      @Override
     public void simulationPeriodic() {
+
+            //Publishes and updates information for simulations.
         m_shooterFlyWheelSim.setInputVoltage(m_shooterSim.getAppliedOutput() * RobotController.getBatteryVoltage());
         m_shooterFlyWheelSim.update(0.02);
         m_shooterSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_shooterFlyWheelSim.getAngularVelocityRadPerSec()),
@@ -196,7 +208,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setAngle(double angle) {
-        m_shooterAnglePID.setReference(angle, ControlType.kPosition);
+        m_shooterAnglePID.setReference(Units.degressToRotations(angle), ControlType.kPosition);
     }
 
     public Command ShootAngleCommand() {
