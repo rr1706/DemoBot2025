@@ -178,6 +178,7 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.getNumber("Shooter Velocity", Velocity);
         return Velocity;
     }
+    
 
     public double getPosition() {
         double Position = m_shooterAngleEncoder.getPosition();
