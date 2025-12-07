@@ -23,9 +23,9 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    m_driverController.leftTrigger().whileTrue(m_shooter.IntakeCommand()).onFalse(m_shooter.IntakeCommandStop());
+    m_driverController.leftTrigger().whileTrue(m_shooter.setVelocity(Constants.ShooterConstants.kVelocity).onFalse(m_shooter.IntakeCommandStop());
 
-    m_driverController.rightTrigger().whileTrue(m_shooter.ShootCommand()).onFalse(m_shooter.ShootCommandStop());
+    m_driverController.rightTrigger().whileTrue(m_shooter.setVelocity(Constants.ShooterConstants.kIntakeVelocity).onFalse(m_shooter.ShootCommandStop());
     // Shoot command is set for when left trigger is pressed
 
     m_driverController.povUp().onTrue(m_pitcher.changePitch(5));
