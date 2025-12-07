@@ -18,9 +18,7 @@ public class RobotSide2d {
     private static double FrameOffsetLength = (DisplayLenght-RobotFrameLength)/2;
     private static double FrameOffsetHeight = Units.inchesToMeters(2);
 
-    private static double IntakeLenght = Units.inchesToMeters(24);
-    private static double RollerLenght = Units.inchesToMeters(5);
-    private static double ShooterLength = Units.inchesToMeters(5);
+    private static double PitcherLenght = Units.inchesToMeters(10);
 
     private final Mechanism2d m_mech2d = new Mechanism2d(DisplayLenght, DisplayHeight);
     // Create Robot Frame root point 8in form the left side and 2in off the ground.
@@ -29,34 +27,23 @@ public class RobotSide2d {
     private final MechanismLigament2d m_Frame = mFrame2dRoot.append(new MechanismLigament2d("Frame", RobotFrameLength, 0, 48, new Color8Bit(Color.kBlue)));
 
     // Create Elevator root point.
-    private final MechanismRoot2d m_intake2dRootUpper = m_mech2d.getRoot("Intake Root Upper", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
-    private final MechanismLigament2d m_intake2dUpper = m_intake2dRootUpper.append(new MechanismLigament2d("Intake Upper", IntakeLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));
+    private final MechanismRoot2d m_pitcher2dRootUpper = m_mech2d.getRoot("pitcher Root Upper", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
+    private final MechanismLigament2d m_pitcher2dUpper = m_pitcher2dRootUpper.append(new MechanismLigament2d("pitcher Upper", PitcherLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));
 
-    /* 
-    private final MechanismRoot2d m_intakeRootRoller = m_mech2d.getRoot("Intake Root Roller", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(20)));
-    private final MechanismLigament2d m_intakeRoller = m_intakeRootRoller.append(new MechanismLigament2d("Intake Roller", RollerLenght, 90, 8.5, new Color8Bit(Color.kRed)));
-    */
+    private final MechanismRoot2d m_pitcher2dRootLower = m_mech2d.getRoot("pitcher Root Lower", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
+    private final MechanismLigament2d m_pitcher2dLower = m_pitcher2dRootLower.append(new MechanismLigament2d("pitcher Lower", PitcherLenght, 90, 6.0, new Color8Bit(Color.kRed)));
 
-    private final MechanismRoot2d m_shooterRootAngle = m_mech2d.getRoot("Shooter Root", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(24)));
-    private final MechanismLigament2d m_shooterAngle = m_shooterRootAngle.append(new MechanismLigament2d("Shooter", ShooterLength, 90, 6.0, new Color8Bit(Color.kAntiqueWhite)));
-
-    private final MechanismRoot2d m_intake2dRootLower = m_mech2d.getRoot("Intake Root Lower", (RobotFrameLength - Units.inchesToMeters(2)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(0)));
-    private final MechanismLigament2d m_intake2dLower = m_intake2dRootLower.append(new MechanismLigament2d("Intake Lower", IntakeLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));
-    
     public RobotSide2d() {
         // Publish Mechanism2d to SmartDashboard
         // To view the elevator visulization, select Network Tables -> SmartDashboard -> Elevator Sim
         SmartDashboard.putData("Robot Sim", m_mech2d);
     }
 
-    public void updateDisplayPose(double IntakeAngle){
+    public void updateDisplayPose(double pitcherAngle){
+        m_pitcher2dUpper.setAngle(90-Units.rotationsToDegrees(pitcherAngle));
+    }
 
-        m_intake2dUpper.setAngle(90-Units.rotationsToDegrees(IntakeAngle));
-        m_intake2dLower.setAngle(90-Units.rotationsToDegrees(IntakeAngle));
+    public void updateDisplayPose2(double pitcherSetAngle) {
+        m_pitcher2dLower.setAngle(90-Units.rotationsToDegrees(pitcherSetAngle));
     }
-    /* 
-    public void updateDisplayPose2(double IntakeVelocity) {
-        m_intakeRoller.setAngle(90-Units.rotationsToDegrees(IntakeVelocity));
-    }
-    */
 }

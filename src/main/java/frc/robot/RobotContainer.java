@@ -11,6 +11,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
+  private final AngleSubsystem m_pitcher = new AngleSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -22,29 +23,28 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-  
-    //m_driverController.rightBumper().whileTrue(m_intake.intakeOutCommand()).onFalse(m_intake.intakeInCommand());
-    // Intake In Command is set for when Right Bumber is not pressed 
-
     m_driverController.rightBumper().whileTrue(m_shooter.IntakeCommand()).onFalse(m_shooter.IntakeCommandStop());
 
     m_driverController.rightTrigger().whileTrue(m_shooter.ShootCommand()).onFalse(m_shooter.ShootCommandStop());
     // Shoot command is set for when left trigger is pressed
 
-    m_driverController.povUp().onTrue(m_shooter.changePitch(5));
+    m_driverController.povUp().onTrue(m_pitcher.changePitch(5));
 
-    m_driverController.povDown().onFalse(m_shooter.changePitch(-5));
+    m_driverController.povDown().onFalse(m_pitcher.changePitch(-5));
 
-    m_driverController.leftTrigger().onTrue(m_shooter.ShootAngleCommand());
-
+    m_driverController.leftTrigger().onTrue(m_pitcher.ShootAngleCommand());
   }
 
   public double getShooterVelocity() {
     return m_shooter.getVelocity();
   }
 
-  public double getShooterAngle() {
-    return m_shooter.getPosition();
+  public double getAngle() {
+    return m_pitcher.getPosition();
+  }
+
+  public double getSetAngle() {
+    return m_pitcher.getSetAngle();
   }
 
   public Command getAutonomousCommand() {
