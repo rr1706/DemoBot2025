@@ -34,6 +34,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SparkMax m_Shooter = new SparkMax(m_shooterPort, MotorType.kBrushless);
         //Creates the shooters motor.
 
+    private final double m_speed = getVelocity();
+
     private DoubleTopic m_shooterTopic = NetworkTableInstance.getDefault().getTable("Shooter")
             .getDoubleTopic("/Shooter/Velocity");
         //Creates location on the smartdaskboard for shooter.
@@ -90,14 +92,6 @@ public class ShooterSubsystem extends SubsystemBase {
         RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_shooterFlyWheelSim.getCurrentDrawAmps()));
     }
 
-        private void Shoot() {
-            m_shooterPID.setReference(shooterConstants.kVelocity, ControlType.kVelocity);
-        }
-
-        private void Intake() {
-            m_shooterPID.setReference(shooterConstants.kVelocityIntake, ControlType.kVelocity);
-        }
-
         private void IntakeStop() {
             m_shooterPID.setReference(shooterConstants.kVelocityIntakeStop, ControlType.kVelocity);
         }
@@ -117,13 +111,9 @@ public class ShooterSubsystem extends SubsystemBase {
         SmartDashboard.getNumber("Shooter Velocity", Velocity);
         return Velocity;
     }
-    
-    public Command ShootCommand() {
-        return this.run(() -> this.Shoot());
-    }
-    
-    public Command IntakeCommand() {
-        return this.run(() -> this.Intake());
+
+    public void changeVelocity(double adjust) {
+        return this.run(() -> m_speed += adjust);
     }
 
     public Command IntakeCommandStop() {
@@ -135,6 +125,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void setVelocity(double speed) {
-        m_ShooterPID.setReference(speed, ControlType.kVelocity);
+        m_speed = speed;
+        m_ShooterPID.setReference(m_speed, ControlType.kVelocity);
     }
 }
