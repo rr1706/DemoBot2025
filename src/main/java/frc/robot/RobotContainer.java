@@ -20,6 +20,11 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    configureDefaultCommands();
+  }
+
+  private void configureDefaultCommands() {
+    m_pitcher.setDefaultCommand(ShootAngleCommand());
   }
 
   private void configureBindings() {
@@ -31,8 +36,6 @@ public class RobotContainer {
     m_driverController.povUp().onTrue(m_pitcher.changePitch(5));
 
     m_driverController.povDown().onTrue(m_pitcher.changePitch(-5));
-
-    m_driverController.a().onTrue(m_pitcher.ShootAngleCommand());
 
     m_driverController.leftBumper.onTrue(m_shooter.changeVelocity(5));
     m_driverController.rightBumper.onTrue(m_shooter.changeVelocity(-5));
