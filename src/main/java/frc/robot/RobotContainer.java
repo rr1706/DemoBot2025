@@ -1,11 +1,11 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.AngleSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
@@ -21,23 +21,19 @@ public class RobotContainer {
   }
 
   private void configureDefaultCommands() {
-    m_pitcher.setDefaultCommand(ShootAngleCommand());
+    m_pitcher.setDefaultCommand(m_pitcher.ShootAngleCommand());
   }
 
   private void configureBindings() {
-    m_driverController.leftTrigger().whileTrue(m_shooter
-            .setVelocity(Constants.ShooterConstants.kVelocity)
-                    .onFalse(m_shooter.IntakeCommandStop()));
+    m_driverController.leftTrigger().whileTrue(new InstantCommand(()-> m_shooter.setVelocity(Constants.shooterConstants.kVelocity)));
 
-    m_driverController.rightTrigger().whileTrue(m_shooter
-            .setVelocity(Constants.ShooterConstants.kIntakeVelocity)
-                    .onFalse(m_shooter.ShootCommandStop()));
+    m_driverController.rightTrigger().whileTrue(new InstantCommand(()-> m_shooter.setVelocity(Constants.shooterConstants.kVelocityIntake)));
 
     m_driverController.povUp().onTrue(m_pitcher.changePitch(5));
     m_driverController.povDown().onTrue(m_pitcher.changePitch(-5));
 
-    m_driverController.leftBumper.onTrue(m_shooter.changeVelocity(5));
-    m_driverController.rightBumper.onTrue(m_shooter.changeVelocity(-5));
+    m_driverController.leftBumper().onTrue(new InstantCommand(()-> m_shooter.changeVelocity(5)));
+    m_driverController.rightBumper().onTrue(new InstantCommand (()-> m_shooter.changeVelocity(-5)));
   }
 
   public double getShooterVelocity() {

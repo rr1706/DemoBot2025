@@ -17,6 +17,8 @@ public final class Constants {
           public static final double kAngleStop = 0.5;
           public static final double kVelocityIntake = -0;
           public static final double kVelocityIntakeStop = 0;
+          public static final double kAMax = 0;
+          public static final double kVMax = 0;
                     //PID values for the ShooterMotor.
           public static final double kVP = 1;
           public static final double kVI = 0;
