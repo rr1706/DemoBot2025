@@ -8,17 +8,14 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.ShooterSubsystem;
 
-
 public class RobotContainer {
   private final ShooterSubsystem m_shooter = new ShooterSubsystem();
   private final AngleSubsystem m_pitcher = new AngleSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
   public RobotContainer() {
-    // Configure the trigger bindings
     configureBindings();
     configureDefaultCommands();
   }
@@ -28,13 +25,15 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    m_driverController.leftTrigger().whileTrue(m_shooter.setVelocity(Constants.ShooterConstants.kVelocity).onFalse(m_shooter.IntakeCommandStop());
+    m_driverController.leftTrigger().whileTrue(m_shooter
+            .setVelocity(Constants.ShooterConstants.kVelocity)
+                    .onFalse(m_shooter.IntakeCommandStop()));
 
-    m_driverController.rightTrigger().whileTrue(m_shooter.setVelocity(Constants.ShooterConstants.kIntakeVelocity).onFalse(m_shooter.ShootCommandStop());
-    // Shoot command is set for when left trigger is pressed
+    m_driverController.rightTrigger().whileTrue(m_shooter
+            .setVelocity(Constants.ShooterConstants.kIntakeVelocity)
+                    .onFalse(m_shooter.ShootCommandStop()));
 
     m_driverController.povUp().onTrue(m_pitcher.changePitch(5));
-
     m_driverController.povDown().onTrue(m_pitcher.changePitch(-5));
 
     m_driverController.leftBumper.onTrue(m_shooter.changeVelocity(5));

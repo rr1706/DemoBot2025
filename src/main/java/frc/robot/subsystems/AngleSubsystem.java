@@ -31,33 +31,33 @@ import frc.robot.Constants.shooterConstants;
 
 public class AngleSubsystem extends SubsystemBase {
 
-    private final SparkMax m_ShooterAngle = new SparkMax(m_shooterAnglePort, MotorType.kBrushless);
+    private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
         //Creates the pitchers motor.
     
     private double m_angle = Constants.shooterConstants.kangle;
         //Creates the angle var thats used for setting angle and adjust.
 
-    private DoubleTopic m_shooterAngleTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
+    private DoubleTopic m_motorTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
             .getDoubleTopic("/Shooter/Angle");
         //Creates location on the smartdashboard for the pitcher.
-    private DoublePublisher m_shooterAnglePublish = m_shooterAngleTopic.publish();
+    private DoublePublisher m_motorPublish = m_motorTopic.publish();
 
-    private final SparkMaxConfig m_shooterAngleMotorConfig = new SparkMaxConfig();
+    private final SparkMaxConfig m_motorMotorConfig = new SparkMaxConfig();
     // Creates the motors configurations.
 
-    private final SparkClosedLoopController m_shooterAnglePID;
+    private final SparkClosedLoopController m_motorPID;
 
-    private final static int m_shooterAnglePort = 4;
+    private final static int m_motorPort = 4;
 
-    private static double m_shooterAngleGearing = Constants.ShooterConstants.kAGearing;
+    private static double m_motorGearing = Constants.ShooterConstants.kAGearing;
 
-    private final RelativeEncoder m_shooterAngleEncoder = m_ShooterAngle.getEncoder();
+    private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
 
         //Simulations setup
-    private final SparkMaxSim m_shooterAngleSim = new SparkMaxSim(m_ShooterAngle, DCMotor.getNEO(1));
-    private final SparkRelativeEncoderSim m_ShooterEncoderSim = new SparkRelativeEncoderSim(m_ShooterAngle);
-    private final SingleJointedArmSim m_ShooterArmSim = new SingleJointedArmSim(DCMotor.getNEO(1),
-            m_shooterAngleGearing,
+    private final SparkMaxSim m_motorSim = new SparkMaxSim(m_motor, DCMotor.getNEO(1));
+    private final SparkRelativeEncoderSim m_motorEncoderSim = new SparkRelativeEncoderSim(m_motor);
+    private final SingleJointedArmSim m_motorArmSim = new SingleJointedArmSim(DCMotor.getNEO(1),
+            m_motorGearing,
             SingleJointedArmSim.estimateMOI(Units.inchesToMeters(12), Units.lbsToKilograms(4)),
             Units.inchesToMeters(12),
             0,
@@ -67,41 +67,28 @@ public class AngleSubsystem extends SubsystemBase {
             0.0, 0.0);
     
     public AngleSubsystem() {
-        m_shooterAnglePID = m_ShooterAngle.getClosedLoopController();
-        
-        m_shooterAngleMotorConfig.encoder
-            .positionConversionFactor(m_shooterAngleGearing)
-            .velocityConversionFactor(m_shooterAngleGearing/60);
-
-        m_shooterAngleMotorConfig.closedLoop
-                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .p(Constants.ShooterConstants.kAP)
-                .i(Constants.ShooterConstants.kAI)
-                .d(Constants.ShooterConstants.kAD)
-                .outputRange(-1, 1);
-        m_shooterAngleMotorConfig.idleMode(IdleMode.kBrake);
-        m_ShooterAngle.configure(m_shooterAngleMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        motorBackground();
     }
 
     @Override
     public void simulationPeriodic() {
-        m_ShooterArmSim.setInputVoltage(m_shooterAngleSim.getAppliedOutput() * RobotController.getBatteryVoltage());
-        m_ShooterArmSim.update(0.02);
-        m_shooterAngleSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_ShooterArmSim.getVelocityRadPerSec()),
+        m_motorArmSim.setInputVoltage(m_motorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
+        m_motorArmSim.update(0.02);
+        m_motorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_motorArmSim.getVelocityRadPerSec()),
                 RoboRioSim.getVInVoltage(), 0.2);
-        m_ShooterEncoderSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_ShooterArmSim.getVelocityRadPerSec()),
+        m_motorEncoderSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_motorArmSim.getVelocityRadPerSec()),
                 0.2);
     }
 
      @Override
     public void periodic() {
-        m_shooterAnglePublish.set(Units.rotationsToDegrees(getPosition()));
+        m_motorPublish.set(Units.rotationsToDegrees(getPosition()));
                 // Converts to correct unit then published to SmartDashboard.
                 SmartDashboard.putNumber("setAngle", m_angle);
-        m_shooterAnglePID.setReference(m_angle, ControlType.kPosition);
-
+        m_motorPID.setReference(m_angle, ControlType.kPosition);
+    }
     public double getPosition() {
-        double Position = m_shooterAngleEncoder.getPosition();
+        double Position = m_motorEncoder.getPosition();
         SmartDashboard.getNumber("Shooter Position", Position);
         return Units.rotationsToDegrees(Position);
     }
@@ -120,15 +107,31 @@ public class AngleSubsystem extends SubsystemBase {
         if (angle >= Constants.ShooterConstants.kAMax) {
             angle = Constants.ShooterConstants.kAMax;
         }
-        m_shooterAnglePID.setReference(Units.degressToRotations(angle), ControlType.kPosition);
+        m_motorPID.setReference(Units.degressToRotations(angle), ControlType.kPosition);
     }
 
     public Command AngleHardStop(){
-        return this.runOnce(() ->m_shooterAngle.stopMotor());
+        return this.runOnce(() ->m_motor.stopMotor());
     }
 
     public Command ShootAngleCommand() {
         return this.run(() ->  setAngle(5.0));
     }
-}
+
+    private void motorBackground() {
+        m_motorPID = m_motor.getClosedLoopController();
+        
+        m_motorMotorConfig.encoder
+            .positionConversionFactor(m_motorGearing)
+            .velocityConversionFactor(m_motorGearing/60);
+
+        m_motorMotorConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .p(Constants.ShooterConstants.kAP)
+                .i(Constants.ShooterConstants.kAI)
+                .d(Constants.ShooterConstants.kAD)
+                .outputRange(-1, 1);
+        m_motorMotorConfig.idleMode(IdleMode.kBrake);
+        m_motor.configure(m_motorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
 }

@@ -28,41 +28,42 @@ public final class Constants {
   }
 
   public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
-    public static final int kDemoControllerPort = 2;
-    public static final double kDeadband = 0.01;
-    public static final double kCubic = 0.95;
-    public static final double kLinear = 0.05;
+         public static final int kDriverControllerPort = 0;
+         public static final int kDemoControllerPort = 2;
+         public static final double kDeadband = 0.01;
+         public static final double kCubic = 0.95;
+         public static final double kLinear = 0.05;
   }
+
   public static final class ModuleConstants {
     public static final class Drive {
-      public static final double kGearRatio = (36.0 / 14.0) * (16.0 / 24.0) * (45.0 / 15.0);
-      public static final double kWheelDiameter = 0.0985;
-      public static final double kToMeters = (1.0 / kGearRatio) * kWheelDiameter * Math.PI;
-      public static final double kToRots = 1 / kToMeters;
-      public static final double kMaxNEORots = 96.0*11.0/12.0;
-      public static final double kp = 0.0001;
-      public static final double kf = 1.0/(kMaxNEORots*kToMeters);
-
-      public static final double kMaxTheoSpeed = kMaxNEORots*kToMeters;   
+         public static final double kGearRatio = (36.0 / 14.0) * (16.0 / 24.0) * (45.0 / 15.0);
+         public static final double kWheelDiameter = 0.0985;
+         public static final double kToMeters = (1.0 / kGearRatio) * kWheelDiameter * Math.PI;
+         public static final double kToRots = 1 / kToMeters;
+         public static final double kMaxNEORots = 96.0*11.0/12.0;
+         public static final double kp = 0.0001;
+         public static final double kf = 1.0/(kMaxNEORots*kToMeters);
+         public static final double kMaxTheoSpeed = kMaxNEORots*kToMeters;   
     }
-    public static final class Aziumth {
-      public static final double kGearRatio = (50.0 / 12.0) * (72.0 / 12.0);
-      public static final double kPositionFactor = 2 * Math.PI;
-      public static final double kVelocityFactor = kPositionFactor / 60.0;
-      public static final double kp = 0.35;
-      public static final double rioKp = 0.8;
-      public static final double rioKi = 0.0;
-      public static final double rioKd = 0.0;
 
+    public static final class Aziumth {
+         public static final double kGearRatio = (50.0 / 12.0) * (72.0 / 12.0);
+         public static final double kPositionFactor = 2 * Math.PI;
+         public static final double kVelocityFactor = kPositionFactor / 60.0;
+         public static final double kp = 0.35;
+         public static final double rioKp = 0.8;
+         public static final double rioKi = 0.0;
+         public static final double rioKd = 0.0;
     }
 }
+
 public static final class DriveConstants {
 
-  public static final double kWheelBaseWidth = 23.0/39.37;
-  public static final double kWheelBaseLength = 18.0/39.37;
-  public static final double kWheelBaseRadius = 0.5
-      * Math.sqrt(Math.pow(kWheelBaseLength, 2) + Math.pow(kWheelBaseWidth, 2));
+        public static final double kWheelBaseWidth = 23.0/39.37;
+        public static final double kWheelBaseLength = 18.0/39.37;
+        public static final double kWheelBaseRadius = 0.5
+           * Math.sqrt(Math.pow(kWheelBaseLength, 2) + Math.pow(kWheelBaseWidth, 2));
   
 
   public static final class FrontLeft {
