@@ -32,6 +32,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
         //Creates the shooters motor.
+        private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
+
 
     private double m_speed = getVelocity();
     
@@ -49,7 +51,6 @@ public class ShooterSubsystem extends SubsystemBase {
     
         private static double m_motorGearing = 1;
     
-        private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
         
             //Simulation setup
         private final SparkMaxSim m_motorSim = new SparkMaxSim(m_motor, DCMotor.getNEO(1));

@@ -1,6 +1,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DriveByController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -20,20 +21,20 @@ public class RobotContainer {
     configureDefaultCommands();
   }
 
-  private void configureDefaultCommands() {
-    m_pitcher.setDefaultCommand(m_pitcher.ShootAngleCommand());
-  }
+  private void configureDefaultCommands() {}
 
   private void configureBindings() {
-    m_driverController.leftTrigger().whileTrue(new InstantCommand(()-> m_shooter.setVelocity(Constants.shooterConstants.kVelocity)));
+    m_driverController.leftTrigger().onTrue(new InstantCommand(()-> m_shooter.setVelocity(Constants.shooterConstants.kVelocity))).onFalse(new InstantCommand(()-> m_shooter.setVelocity(0)));
+    m_driverController.rightTrigger().onTrue(new InstantCommand(()-> m_shooter.setVelocity(Constants.shooterConstants.kVelocityIntake))).onFalse(new InstantCommand(()-> m_shooter.setVelocity(0)));
 
-    m_driverController.rightTrigger().whileTrue(new InstantCommand(()-> m_shooter.setVelocity(Constants.shooterConstants.kVelocityIntake)));
+    m_driverController.leftBumper().onTrue(new InstantCommand(()-> m_pitcher.setAngle(40, 8.0)))
+                                  .onFalse(new InstantCommand(()-> m_pitcher.setAngle(20, 8.0)));
 
-    m_driverController.povUp().onTrue(m_pitcher.changePitch(5));
-    m_driverController.povDown().onTrue(m_pitcher.changePitch(-5));
+    m_driverController.povUp().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5), 1)));
+    m_driverController.povDown().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5), 1)));
 
-    m_driverController.leftBumper().onTrue(new InstantCommand(()-> m_shooter.changeVelocity(5)));
-    m_driverController.rightBumper().onTrue(new InstantCommand (()-> m_shooter.changeVelocity(-5)));
+    m_driverController.povLeft().onTrue(new InstantCommand(()-> m_shooter.changeVelocity(5)));
+    m_driverController.povRight().onTrue(new InstantCommand (()-> m_shooter.changeVelocity(-5)));
   }
 
   public double getShooterVelocity() {

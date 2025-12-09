@@ -38,6 +38,11 @@ public class AngleSubsystem extends SubsystemBase {
         //Creates location on the smartdashboard for the pitcher.
     private DoublePublisher m_motorPublish = m_motorTopic.publish();
 
+    private DoubleTopic m_motorSpeedTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
+            .getDoubleTopic("/Shooter/Velocity");
+        //Creates location on the smartdashboard for the pitcher.
+    private DoublePublisher m_motorSpeedPublish = m_motorSpeedTopic.publish();
+
     private final SparkMaxConfig m_motorMotorConfig = new SparkMaxConfig();
     // Creates the motors configurations.
 
@@ -81,7 +86,7 @@ public class AngleSubsystem extends SubsystemBase {
         m_motorPublish.set(Units.rotationsToDegrees(getPosition()));
                 // Converts to correct unit then published to SmartDashboard.
                 SmartDashboard.putNumber("setAngle", m_angle);
-        m_motorPID.setReference(m_angle, ControlType.kPosition);
+        m_motorSpeedPublish.set(Units.rotationsToDegrees(getVelocity()));
     }
     public double getPosition() {
         double Position = m_motorEncoder.getPosition();
@@ -89,29 +94,40 @@ public class AngleSubsystem extends SubsystemBase {
         return Units.rotationsToDegrees(Position);
     }
 
+    public double getVelocity() {
+        double Velocity = m_motorEncoder.getVelocity();
+        SmartDashboard.getNumber("Shooter Velocity", Velocity);
+        return Units.rotationsToDegrees(Velocity);
+    }
+
     public double getSetAngle() {
         double setPose = m_angle;
         return setPose;
     }
 
-    public Command changePitch(double adjust) {
-        return runOnce(() -> {m_angle += adjust;});
+    public double changePitch(double adjust) {
+        double newAngle = m_angle + adjust;
+        return newAngle;
     }
 
-    public void setAngle(double angle) {
+    public void setAngle(double angle, double Velocity) {
         m_angle = angle;
-        if (angle >= Constants.shooterConstants.kAMax) {
-            angle = Constants.shooterConstants.kAMax;
+        if (m_angle >= Constants.shooterConstants.kAMax) {
+            m_angle = Constants.shooterConstants.kAMax;
+        } else if (m_angle <= Constants.shooterConstants.kAMin) {
+            m_angle = Constants.shooterConstants.kAMin;
         }
-        m_motorPID.setReference(Units.degreesToRotations(angle), ControlType.kPosition);
+
+        SmartDashboard.putNumber("setAngle", m_angle);
+        m_motorPID.setReference(Units.degreesToRotations(m_angle), ControlType.kPosition);
     }
 
     public Command AngleHardStop(){
-        return this.runOnce(() ->m_motor.stopMotor());
+        return runOnce(() ->m_motor.stopMotor());
     }
 
     public Command ShootAngleCommand() {
-        return this.run(() ->  setAngle(5.0));
+        return run(() ->  setAngle(5.0, 8.0));
     }
 
     private void motorBackground() {
