@@ -27,11 +27,8 @@ public class RobotSide2d {
     private final MechanismLigament2d m_Frame = mFrame2dRoot.append(new MechanismLigament2d("Frame", RobotFrameLength, 0, 48, new Color8Bit(Color.kBlue)));
 
     // Create Elevator root point.
-    private final MechanismRoot2d m_pitcher2dRootUpper = m_mech2d.getRoot("pitcher Root Upper", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
-    private final MechanismLigament2d m_pitcher2dUpper = m_pitcher2dRootUpper.append(new MechanismLigament2d("pitcher Upper", PitcherLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));
-
-    private final MechanismRoot2d m_pitcher2dRootLower = m_mech2d.getRoot("pitcher Root Lower", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
-    private final MechanismLigament2d m_pitcher2dLower = m_pitcher2dRootLower.append(new MechanismLigament2d("pitcher Lower", PitcherLenght, 90, 6.0, new Color8Bit(Color.kRed)));
+    private final MechanismRoot2d m_pitcher2dRoot = m_mech2d.getRoot("pitcher Root Upper", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
+    private final MechanismLigament2d m_pitcher2d = m_pitcher2dRoot.append(new MechanismLigament2d("pitcher Upper", PitcherLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));
 
     public RobotSide2d() {
         // Publish Mechanism2d to SmartDashboard
@@ -40,10 +37,6 @@ public class RobotSide2d {
     }
 
     public void updateDisplayPose(double pitcherAngle){
-        m_pitcher2dUpper.setAngle(90-Units.rotationsToDegrees(pitcherAngle));
-    }
-
-    public void updateDisplayPose2(double pitcherSetAngle) {
-        m_pitcher2dLower.setAngle(90-Units.rotationsToDegrees(pitcherSetAngle));
+        m_pitcher2d.setAngle(90-Units.rotationsToDegrees(pitcherAngle));
     }
 }

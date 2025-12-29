@@ -26,67 +26,38 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class AngleSubsystem extends SubsystemBase {
-
-    private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
-        //Creates the pitchers motor.
-    
-    private double m_angle = Constants.shooterConstants.kAngle;
-        //Creates the angle var thats used for setting angle and adjust.
-
     private DoubleTopic m_motorTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
             .getDoubleTopic("/Shooter/Angle");
         //Creates location on the smartdashboard for the pitcher.
     private DoublePublisher m_motorPublish = m_motorTopic.publish();
 
-    private DoubleTopic m_motorSpeedTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
-            .getDoubleTopic("/Shooter/Velocity");
-        //Creates location on the smartdashboard for the pitcher.
-    private DoublePublisher m_motorSpeedPublish = m_motorSpeedTopic.publish();
+    private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
+        //Creates the pitchers motor.
+    
+    private double m_angle = 0;
+        //Creates the angle var thats used for setting angle and adjust.
 
     private final SparkMaxConfig m_motorMotorConfig = new SparkMaxConfig();
     // Creates the motors configurations.
 
     private SparkClosedLoopController m_motorPID;
 
-    private final static int m_motorPort = 4;
+    private final static int m_motorPort = 10;
 
-    private static double m_motorGearing = 1;
+    private static double m_motorGearing = 25;
 
     private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
 
-        //Simulations setup
-    private final SparkMaxSim m_motorSim = new SparkMaxSim(m_motor, DCMotor.getNEO(1));
-    private final SparkRelativeEncoderSim m_motorEncoderSim = new SparkRelativeEncoderSim(m_motor);
-    private final SingleJointedArmSim m_motorArmSim = new SingleJointedArmSim(DCMotor.getNEO(1),
-            m_motorGearing,
-            SingleJointedArmSim.estimateMOI(Units.inchesToMeters(12), Units.lbsToKilograms(4)),
-            Units.inchesToMeters(12),
-            0,
-            Math.PI / 2,
-            true,
-            Math.PI / 2,
-            0.0, 0.0);
     
     public AngleSubsystem() {
         motorBackground();
     }
 
     @Override
-    public void simulationPeriodic() {
-        m_motorArmSim.setInputVoltage(m_motorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
-        m_motorArmSim.update(0.02);
-        m_motorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_motorArmSim.getVelocityRadPerSec()),
-                RoboRioSim.getVInVoltage(), 0.2);
-        m_motorEncoderSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_motorArmSim.getVelocityRadPerSec()),
-                0.2);
-    }
-
-     @Override
     public void periodic() {
         m_motorPublish.set(Units.rotationsToDegrees(getPosition()));
                 // Converts to correct unit then published to SmartDashboard.
                 SmartDashboard.putNumber("setAngle", m_angle);
-        m_motorSpeedPublish.set(Units.rotationsToDegrees(getVelocity()));
     }
     public double getPosition() {
         double Position = m_motorEncoder.getPosition();
@@ -106,20 +77,19 @@ public class AngleSubsystem extends SubsystemBase {
     }
 
     public double changePitch(double adjust) {
-        double newAngle = m_angle + adjust;
-        return newAngle;
+        m_angle += adjust;
+        return m_angle;
     }
 
-    public void setAngle(double angle, double Velocity) {
+    public void setAngle(double angle) {
         m_angle = angle;
-        if (m_angle >= Constants.shooterConstants.kAMax) {
-            m_angle = Constants.shooterConstants.kAMax;
-        } else if (m_angle <= Constants.shooterConstants.kAMin) {
-            m_angle = Constants.shooterConstants.kAMin;
+        if (angle >= Constants.shooterConstants.kAMax) {
+            angle = Constants.shooterConstants.kAMax;
+        } else if (angle <= Constants.shooterConstants.kAMin) {
+            angle = Constants.shooterConstants.kAMin;
         }
-
-        SmartDashboard.putNumber("setAngle", m_angle);
-        m_motorPID.setReference(Units.degreesToRotations(m_angle), ControlType.kPosition);
+        m_motorPID.setReference(Units.degreesToRotations(angle), ControlType.kPosition);
+        SmartDashboard.putNumber("setAngle", angle);
     }
 
     public Command AngleHardStop(){
@@ -127,7 +97,7 @@ public class AngleSubsystem extends SubsystemBase {
     }
 
     public Command ShootAngleCommand() {
-        return run(() ->  setAngle(5.0, 8.0));
+        return run(() ->  setAngle(5.0));
     }
 
     private void motorBackground() {

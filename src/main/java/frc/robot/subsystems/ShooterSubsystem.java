@@ -47,34 +47,12 @@ public class ShooterSubsystem extends SubsystemBase {
     
         private SparkClosedLoopController m_motorPID;
     
-        private final static int m_motorPort = 3;
+        private final static int m_motorPort = 9;
     
         private static double m_motorGearing = 1;
     
-        
-            //Simulation setup
-        private final SparkMaxSim m_motorSim = new SparkMaxSim(m_motor, DCMotor.getNEO(1));
-        private final SparkRelativeEncoderSim m_motorEncoderSim = new SparkRelativeEncoderSim(m_motor);
-        private final FlywheelSim m_motorFlyWheelSim = new FlywheelSim(LinearSystemId.createFlywheelSystem(DCMotor.getNEO(1), 1, m_motorGearing),
-                                             DCMotor.getNEO(1).withReduction(m_motorGearing), 
-                                             0.0);
-    
-        
-    
         public ShooterSubsystem() {
             motorBackground();
-        }
-    
-         @Override
-        public void simulationPeriodic() {
-                //Publishes and updates information for simulations.
-            m_motorFlyWheelSim.setInputVoltage(m_motorSim.getAppliedOutput() * RobotController.getBatteryVoltage());
-            m_motorFlyWheelSim.update(0.02);
-            m_motorSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_motorFlyWheelSim.getAngularVelocityRadPerSec()),
-                    RoboRioSim.getVInVoltage(), 0.2);
-            m_motorEncoderSim.iterate(Units.radiansPerSecondToRotationsPerMinute(m_motorFlyWheelSim.getAngularVelocityRadPerSec()),
-                    0.2);
-            RoboRioSim.setVInVoltage(BatterySim.calculateDefaultBatteryLoadedVoltage(m_motorFlyWheelSim.getCurrentDrawAmps()));
         }
     
         private void IntakeStop() {
