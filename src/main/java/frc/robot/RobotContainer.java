@@ -21,11 +21,6 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
-    configureDefaultCommands();
-  }
-
-  private void configureDefaultCommands() {
-    
   }
 
   private void configureBindings() {
