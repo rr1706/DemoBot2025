@@ -6,24 +6,22 @@ import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleTopic;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+
 
 public class AngleSubsystem extends SubsystemBase {
     private DoubleTopic m_motorTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
@@ -33,9 +31,6 @@ public class AngleSubsystem extends SubsystemBase {
 
     private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
         //Creates the pitchers motor.
-    
-    private double m_angle = 0;
-        //Creates the angle var thats used for setting angle and adjust.
 
     private final SparkMaxConfig m_motorMotorConfig = new SparkMaxConfig();
     // Creates the motors configurations.
@@ -48,56 +43,79 @@ public class AngleSubsystem extends SubsystemBase {
 
     private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
 
-    
     public AngleSubsystem() {
         motorBackground();
     }
 
+    private double m_angle = getPosition();
+    private double m_setAngle;
+
     @Override
     public void periodic() {
-        m_motorPublish.set(Units.rotationsToDegrees(getPosition()));
+        m_motorPublish.set(m_setAngle);
+        SmartDashboard.putNumber("Shooter Angle", m_angle);
                 // Converts to correct unit then published to SmartDashboard.
-                SmartDashboard.putNumber("setAngle", m_angle);
     }
+
     public double getPosition() {
         double Position = m_motorEncoder.getPosition();
-        SmartDashboard.getNumber("Shooter Position", Position);
+        SmartDashboard.putNumber("Shooter Angle", Position);
         return Units.rotationsToDegrees(Position);
     }
 
     public double getVelocity() {
         double Velocity = m_motorEncoder.getVelocity();
-        SmartDashboard.getNumber("Shooter Velocity", Velocity);
         return Units.rotationsToDegrees(Velocity);
     }
 
     public double getSetAngle() {
-        double setPose = m_angle;
-        return setPose;
+        return m_setAngle;
     }
 
     public double changePitch(double adjust) {
-        m_angle += adjust;
-        return m_angle;
+        m_setAngle += adjust;
+        return m_setAngle;
+    }
+
+    private void Intake(){
+        m_setAngle = Constants.shooterConstants.kAngleIntake;
+        m_motorPID.setReference(Units.degreesToRadians(Constants.shooterConstants.kAngleIntake), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    }
+
+    private void Shoot() {
+        m_setAngle = Constants.shooterConstants.kAngleShoot;
+        m_motorPID.setReference(Units.degreesToRadians(Constants.shooterConstants.kAngleShoot), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    }
+
+    private void Home() {
+        m_setAngle = Constants.shooterConstants.kAngleStop;
+        m_motorPID.setReference(Units.degreesToRadians(Constants.shooterConstants.kAngleStop), ControlType.kPosition, ClosedLoopSlot.kSlot0);
     }
 
     public void setAngle(double angle) {
-        m_angle = angle;
-        if (angle >= Constants.shooterConstants.kAMax) {
-            angle = Constants.shooterConstants.kAMax;
-        } else if (angle <= Constants.shooterConstants.kAMin) {
-            angle = Constants.shooterConstants.kAMin;
+        m_setAngle = angle;
+        if (m_setAngle >= Constants.shooterConstants.kAMax) {
+            m_setAngle = Constants.shooterConstants.kAMax;
+        } else if (m_setAngle <= Constants.shooterConstants.kAMin) {
+            m_setAngle = Constants.shooterConstants.kAMin;
         }
-        m_motorPID.setReference(Units.degreesToRotations(angle), ControlType.kPosition);
-        SmartDashboard.putNumber("setAngle", angle);
+        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kPosition, ClosedLoopSlot.kSlot0);
     }
 
     public Command AngleHardStop(){
         return runOnce(() ->m_motor.stopMotor());
     }
 
-    public Command ShootAngleCommand() {
-        return run(() ->  setAngle(5.0));
+    public Command ShootCommand() {
+        return this.run(() -> this.Shoot());
+    }
+
+    public Command IntakeCommand() {
+        return this.run(() -> this.Intake());
+    }
+
+    public Command HomeCommand() {
+        return this.run(() -> this.Home());
     }
 
     private void motorBackground() {

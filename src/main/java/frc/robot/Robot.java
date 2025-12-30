@@ -95,6 +95,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-   RobotDisplay.updateDisplayPose(m_robotContainer.getAngle());
+   RobotDisplay.pitcherAngle(m_robotContainer.getSetAngle());
+    RobotDisplay.pitcherRealAngle(m_robotContainer.getAngle());
   }
 }

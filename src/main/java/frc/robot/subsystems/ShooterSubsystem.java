@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -33,9 +34,6 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
         //Creates the shooters motor.
         private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
-
-
-    private double m_speed = getVelocity();
     
         private DoubleTopic m_motorTopic = NetworkTableInstance.getDefault().getTable("Shooter")
                 .getDoubleTopic("/Shooter/Velocity");
@@ -54,43 +52,57 @@ public class ShooterSubsystem extends SubsystemBase {
         public ShooterSubsystem() {
             motorBackground();
         }
+
+        private double m_speed = getVelocity();
+        private double m_setSpeed;
     
-        private void IntakeStop() {
-            m_motorPID.setReference(shooterConstants.kVelocityIntakeStop, ControlType.kVelocity);
+        private void Intake() {
+            m_setSpeed = shooterConstants.kVelocityIntake;
+            m_motorPID.setReference(shooterConstants.kVelocityIntake, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
         }
     
-        private void ShootStop() {
-            m_motorPID.setReference(Units.degreesToRotations((shooterConstants.kVelocityStop)), ControlType.kVelocity);
+        private void Shoot() {
+            m_setSpeed = shooterConstants.kVelocityShoot;
+            m_motorPID.setReference(shooterConstants.kVelocityShoot, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        }
+
+        private void Stop() {
+            m_setSpeed = shooterConstants.kVelocityStop;
+            m_motorPID.setReference(0, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
         }
     
         @Override
         public void periodic() {       
-            m_motorPublish.set(Units.rotationsToDegrees(getVelocity()));
-                SmartDashboard.getNumber("shooter Velocity", getVelocity());
+            m_motorPublish.set(m_setSpeed);
+            SmartDashboard.putNumber("shooter Velocity", getVelocity());
         }
     
         public double getVelocity() {
             double Velocity = m_motorEncoder.getVelocity();
-            SmartDashboard.getNumber("Shooter Velocity", Velocity);
+            SmartDashboard.putNumber("Shooter Velocity", Velocity);
             return Velocity;
         }
     
         public double changeVelocity(double adjust) {
-            m_speed += adjust;
-        return m_speed;
+            m_setSpeed += adjust;
+            return m_setSpeed;
+        }
+
+    public Command ShootCommand() {
+        return this.run(() -> this.Shoot());
     }
 
-    public Command IntakeCommandStop() {
-        return this.run(() -> this.IntakeStop());
+    public Command IntakeCommand() {
+        return this.run(() -> this.Intake());
     }
 
-    public Command ShootCommandStop() {
-        return this.run(() -> this.ShootStop());
+    public Command StopCommand() {
+        return this.run(() -> this.Stop());
     }
 
     public void setVelocity(double speed) {
-        m_speed = speed;
-        m_motorPID.setReference(m_speed, ControlType.kVelocity);
+        m_setSpeed = speed;
+        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
 
     private void motorBackground() {

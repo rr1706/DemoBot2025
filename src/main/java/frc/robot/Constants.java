@@ -7,27 +7,26 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-
 public final class Constants {
   
   public static class shooterConstants {
-          public static final double kVelocity = 0.5;
-          public static final double kVelocityStop = 0;
-          public static final double kAngle = 0.5;
-          public static final double kAngleStop = 0;
-          public static final double kVelocityIntake = -5.0;
-          public static final double kVelocityIntakeStop = 0;
-          public static final double kAMax = 100;
-          public static final double kAMin = 0;
-          public static final double kVMax = 100;
                     //PID values for the ShooterMotor.
           public static final double kVP = 1;
           public static final double kVI = 0;
-          public static final double kVD = 0;
+          public static final double kVD = 1;
+          public static final double kVelocityShoot = 200;
+          public static final double kVelocityStop = 0;
+          public static final double kVMax = 100;
+          public static final double kVelocityIntake = -5.0;
                     //PID Values for the ShooterAngleMotor.
           public static final double kAP = 1;
           public static final double kAI = 0;
-          public static final double kAD = 0;
+          public static final double kAD = 1;
+          public static final double kAngleShoot = 40;
+          public static final double kAngleIntake = 10;
+          public static final double kAMax = 150;
+          public static final double kAMin = 10;
+          public static final double kAngleStop = 20;
   }
 
   public static class OperatorConstants {
