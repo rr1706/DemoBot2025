@@ -46,8 +46,6 @@ public class RobotSide2d {
     private final MechanismLigament2d m_pitcherSet2d = m_pitcherSet2dRoot.append(new MechanismLigament2d("pitcher Lower", PitcherLenght, 90, 6.0, new Color8Bit(Color.kRed)));
 
     public RobotSide2d() {
-        // Publish Mechanism2d to SmartDashboard
-        // To view the elevator visulization, select Network Tables -> SmartDashboard -> Elevator Sim
         SmartDashboard.putData("Robot Sim", m_mech2d);
     }
 }

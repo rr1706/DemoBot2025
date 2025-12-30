@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -24,11 +22,6 @@ import frc.robot.Constants;
 
 
 public class AngleSubsystem extends SubsystemBase {
-    private DoubleTopic m_motorTopic = NetworkTableInstance.getDefault().getTable("Shooter Angle")
-            .getDoubleTopic("/Shooter/Angle");
-        //Creates location on the smartdashboard for the pitcher.
-    private DoublePublisher m_motorPublish = m_motorTopic.publish();
-
     private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
         //Creates the pitchers motor.
 
@@ -52,14 +45,13 @@ public class AngleSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        m_motorPublish.set(m_setAngle);
         SmartDashboard.putNumber("Shooter Angle", m_angle);
+        SmartDashboard.putNumber("Shooter Set Angle", m_setAngle);
                 // Converts to correct unit then published to SmartDashboard.
     }
 
     public double getPosition() {
         double Position = m_motorEncoder.getPosition();
-        SmartDashboard.putNumber("Shooter Angle", Position);
         return Units.rotationsToDegrees(Position);
     }
 

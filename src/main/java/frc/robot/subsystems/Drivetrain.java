@@ -199,9 +199,8 @@ public class Drivetrain extends SubsystemBase {
     double ySpeed = getChassisSpeed().vyMetersPerSecond;
 
     double speed = Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
-
+    /*
     SmartDashboard.putNumber("Speed", speed);
-
     SmartDashboard.putNumber("Front Left Encoder", m_FLModule.getStateAngle().getRadians());
     SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle().getRadians());
     SmartDashboard.putNumber("Rear Left Encoder", m_RLModule.getStateAngle().getRadians());
@@ -214,7 +213,7 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Front Right Position", m_FRModule.getDrivePosition());
     SmartDashboard.putNumber("Rear Left Position", m_RLModule.getDrivePosition());
     SmartDashboard.putNumber("Rear Right Position", m_RRModule.getDrivePosition());   
-
+    */
     updateOdometry();
 
     getPose();
@@ -306,10 +305,11 @@ public class Drivetrain extends SubsystemBase {
     Pose2d pose = m_odometry.getPoseMeters();
     Translation2d position = pose.getTranslation();
 
+    /*
     SmartDashboard.putNumber("Robot X", position.getX());
     SmartDashboard.putNumber("Robot Y", position.getY());
     SmartDashboard.putNumber("Robot Gyro", getGyro().getRadians());
-
+    */
     return pose;
   }
 
