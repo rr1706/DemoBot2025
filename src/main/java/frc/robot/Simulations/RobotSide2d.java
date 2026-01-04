@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.subsystems.AngleSubsystem;
 
 public class RobotSide2d {
     private static double RobotFrameLength = Units.inchesToMeters(24);
@@ -43,7 +42,7 @@ public class RobotSide2d {
     private final MechanismLigament2d m_pitcher2d = m_pitcher2dRoot.append(new MechanismLigament2d("pitcher Upper", PitcherLenght, m_setAngle, 6.0, new Color8Bit(Color.kAliceBlue)));
 
     private final MechanismRoot2d m_pitcherSet2dRoot = m_mech2d.getRoot("pitcher Root Lower", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
-    private final MechanismLigament2d m_pitcherSet2d = m_pitcherSet2dRoot.append(new MechanismLigament2d("pitcher Lower", PitcherLenght, 90, 6.0, new Color8Bit(Color.kRed)));
+    private final MechanismLigament2d m_pitcherSet2d = m_pitcherSet2dRoot.append(new MechanismLigament2d("pitcher Lower", PitcherLenght, m_trueAngle, 6.0, new Color8Bit(Color.kRed)));
 
     public RobotSide2d() {
         SmartDashboard.putData("Robot Sim", m_mech2d);

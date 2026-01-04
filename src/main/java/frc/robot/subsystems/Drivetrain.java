@@ -19,12 +19,10 @@ import com.pathplanner.lib.controllers.PPLTVController;
 import com.reduxrobotics.sensors.canandgyro.Canandgyro;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-
 import frc.robot.Constants.*;
 import frc.robot.Constants.DriveConstants.FrontLeft;
 import frc.robot.Constants.DriveConstants.FrontRight;
@@ -199,7 +197,7 @@ public class Drivetrain extends SubsystemBase {
     double ySpeed = getChassisSpeed().vyMetersPerSecond;
 
     double speed = Math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed);
-    /*
+    
     SmartDashboard.putNumber("Speed", speed);
     SmartDashboard.putNumber("Front Left Encoder", m_FLModule.getStateAngle().getRadians());
     SmartDashboard.putNumber("Front Right Encoder", m_FRModule.getStateAngle().getRadians());
@@ -213,7 +211,7 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Front Right Position", m_FRModule.getDrivePosition());
     SmartDashboard.putNumber("Rear Left Position", m_RLModule.getDrivePosition());
     SmartDashboard.putNumber("Rear Right Position", m_RRModule.getDrivePosition());   
-    */
+    
     updateOdometry();
 
     getPose();

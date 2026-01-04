@@ -1,69 +1,66 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Simulations.RobotSide2d;
 import frc.robot.commands.DriveByController;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ShootCommand;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.AngleSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.Shoulder;
+import frc.robot.subsystems.Manipulator;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
-  private final ShooterSubsystem m_shooter = new ShooterSubsystem();
-  private final AngleSubsystem m_pitcher = new AngleSubsystem();
+  private final Manipulator m_manipulator = new Manipulator();
+  private final Shoulder m_pitcher = new Shoulder();
   private final Drivetrain m_driveTrain = new Drivetrain();
+  private final RobotSide2d m_simulation = new RobotSide2d();
+
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_fullController =
+      new CommandXboxController(OperatorConstants.kFullPort);
   
-  private final DriveByController m_driveByController = new DriveByController(m_driveTrain, m_driverController);
-  private final CommandJoystick m_driverControllerSim = new CommandJoystick(1);
-
   public RobotContainer() {
     configureBindings();
-    m_driveTrain.setDefaultCommand(m_driveByController);
+    m_driveTrain.setDefaultCommand(new DriveByController(m_driveTrain, m_driverController));
   }
 
   private void configureBindings() {
-    m_driverController.leftTrigger().whileTrue(m_shooter.IntakeCommand())
-                                    .onFalse(m_shooter.StopCommand());
+    m_driverController.leftTrigger().onTrue(new IntakeCommand(m_manipulator, m_pitcher));
 
-    m_driverController.rightTrigger().whileTrue(m_shooter.ShootCommand())
-                                    .onFalse(m_shooter.StopCommand());
+    m_driverController.rightTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher));
 
-    m_driverController.leftBumper().whileTrue(m_pitcher.IntakeCommand())
-                                    .onFalse(m_pitcher.HomeCommand());
+        //For finner control set the controller port to 1 in DriveStation.
+    m_fullController.a().onTrue(new InstantCommand(()-> m_driveTrain.resetOdometry(new Pose2d())));
+    
+    m_fullController.leftTrigger().onTrue(new InstantCommand(()-> m_manipulator.Intake()))
+                                  .onFalse(new InstantCommand(()-> m_manipulator.Stop()));
+    m_fullController.rightTrigger().onTrue(new InstantCommand(()-> m_manipulator.Shoot()))
+                                   .onFalse(new InstantCommand(()-> m_manipulator.Stop()));
 
-    m_driverController.povUp().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5))));
-    m_driverController.povDown().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5))));
+    m_fullController.leftBumper().onTrue(new InstantCommand(()-> m_pitcher.Intake()))
+                                  .onFalse(new InstantCommand(()-> m_pitcher.Home()));
+    m_fullController.rightBumper().onTrue(new InstantCommand(()-> m_pitcher.Shoot()))
+                                  .onFalse(new InstantCommand(()-> m_pitcher.Home()));
 
-    m_driverController.povLeft().onTrue(new InstantCommand(()-> m_shooter.setVelocity(m_shooter.changeVelocity(5))));
-    m_driverController.povRight().onTrue(new InstantCommand (()-> m_shooter.setVelocity(m_shooter.changeVelocity(-5))));
+    m_fullController.povUp().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5), 0)));
+    m_fullController.povDown().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5), 0)));
 
-    m_driverControllerSim.button(1).whileTrue(m_shooter.IntakeCommand()).onFalse(m_shooter.StopCommand());
-    m_driverControllerSim.button(2).whileTrue(m_shooter.ShootCommand()).onFalse(m_shooter.StopCommand());
-    m_driverControllerSim.button(3).whileTrue(m_pitcher.IntakeCommand()).onFalse(m_pitcher.HomeCommand());
-    m_driverControllerSim.button(4).whileTrue(m_pitcher.ShootCommand()).onFalse(m_pitcher.HomeCommand());
-    m_driverControllerSim.button(5).onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5))));
-    m_driverControllerSim.button(6).onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5))));
-  }
-
-  public double getShooterVelocity() {
-    return m_shooter.getVelocity();
-  }
-
-  public double getAngle() {
-    return m_pitcher.getPosition();
-  }
-
-  public double getSetAngle() {
-    return m_pitcher.getSetAngle();
+    m_fullController.povLeft().onTrue(new InstantCommand(()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(5))));
+    m_fullController.povRight().onTrue(new InstantCommand (()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(-5))));
   }
 
   public Command getAutonomousCommand() {
     return new WaitCommand(0.0);
      // Voids the Auto Command.
+  }
+
+  public void updateSims() {
+    m_simulation.pitcherAngle(m_pitcher.getPosition());
   }
 }
