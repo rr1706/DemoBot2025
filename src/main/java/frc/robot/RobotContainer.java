@@ -24,10 +24,16 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_fullController =
       new CommandXboxController(OperatorConstants.kFullPort);
+
+  private boolean controllerInUse = false;
   
   public RobotContainer() {
     configureBindings();
-    m_driveTrain.setDefaultCommand(new DriveByController(m_driveTrain, m_driverController));
+    if (controllerInUse) {
+      m_driveTrain.setDefaultCommand(new DriveByController(m_driveTrain, m_driverController));
+    } else {
+      m_driveTrain.setDefaultCommand(new DriveByController(m_driveTrain, m_fullController));
+    }
   }
 
   private void configureBindings() {
