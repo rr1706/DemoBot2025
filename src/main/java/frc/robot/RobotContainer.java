@@ -67,6 +67,6 @@ public class RobotContainer {
   }
 
   public void updateSims() {
-    m_simulation.pitcherAngle(m_pitcher.getPosition());
+    m_simulation.pitcherAngle(m_pitcher.getSetAngle(), m_pitcher.getPosition());
   }
 }

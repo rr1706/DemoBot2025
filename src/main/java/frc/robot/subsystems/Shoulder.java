@@ -43,6 +43,10 @@ public class Shoulder extends SubsystemBase {
         SmartDashboard.putNumber("Pitcher Set Speed", m_setPower);
     }
 
+    public double getSetAngle() {
+        return m_setAngle;
+    }
+
     public double getPosition() {
         double Position = m_motorEncoder.getPosition();
         return Units.radiansToDegrees(Position);

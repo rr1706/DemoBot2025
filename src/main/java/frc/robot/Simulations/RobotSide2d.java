@@ -23,12 +23,9 @@ public class RobotSide2d {
     private double m_setAngle = 90;
     private double m_trueAngle = 90;
 
-    public void pitcherAngle(double setAngle) {
+    public void pitcherAngle(double setAngle, double trueAngle) {
         m_setAngle = setAngle;
-    }
-
-    public void pitcherRealAngle(double angle) {
-        m_trueAngle = angle;
+        m_trueAngle = trueAngle;
     }
 
     private final Mechanism2d m_mech2d = new Mechanism2d(DisplayLenght, DisplayHeight);
