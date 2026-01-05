@@ -36,8 +36,5 @@ public class ShootCommand extends Command {
     }
 
     @Override
-    public void end(boolean interrupted) {
-        m_manipulator.setVelocity(Constants.shooterConstants.kDefault);
-        m_shoulder.setAngle(Constants.ShoulderConstants.kDefault, 0);
-    }
+    public void end(boolean interrupted) {}
 }
