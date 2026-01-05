@@ -4,6 +4,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Simulations.RobotSide2d;
 import frc.robot.commands.DriveByController;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ResetCommand;
 import frc.robot.commands.ShootCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,9 +38,12 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    m_driverController.leftTrigger().onTrue(new IntakeCommand(m_manipulator, m_pitcher));
+    m_driverController.leftTrigger().onTrue(new IntakeCommand(m_manipulator, m_pitcher))
+                                    .onFalse(new ResetCommand(m_manipulator, m_pitcher));
 
-    m_driverController.rightTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher));
+    m_driverController.rightTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher))
+                                    .onFalse(new ResetCommand(m_manipulator, m_pitcher));
+
 
         //For finner control set the controller port to 1 in DriveStation.
     m_fullController.a().onTrue(new InstantCommand(()-> m_driveTrain.resetOdometry(new Pose2d())));
