@@ -26,7 +26,7 @@ public class IntakeCommand extends Command {
 
     @Override
     public void initialize() {
-        m_shoulder.setAngle(Constants.ShoulderConstants.kIntake, 0);
+        m_shoulder.setAngle(Constants.ShoulderConstants.kIntake);
     }
 
     @Override

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private final RobotContainer m_robotContainer;
+  private final RobotSide2d m_sims;
   
 
   /**
@@ -21,6 +22,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    m_sims = new RobotSide2d();
   }
 
   /**
@@ -93,6 +95,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {
-    m_robotContainer.updateSims();
+    m_sims.pitcherAngle(m_robotContainer.getPitcherPose(), m_robotContainer.getPitcherSetPose());
   }
 }

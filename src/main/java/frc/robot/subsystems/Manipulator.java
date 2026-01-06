@@ -18,16 +18,11 @@ import frc.robot.Constants.shooterConstants;
 
 public class Manipulator extends SubsystemBase {
 
-    private final SparkMax m_motor = new SparkMax(Constants.ShoulderConstants.kMotorPort, MotorType.kBrushless);
-    // Creates the shooters motor.
+    private final SparkMax m_motor = 
+            new SparkMax(Constants.ShoulderConstants.kMotorPort, MotorType.kBrushless);
     private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
-
     private final SparkMaxConfig m_motorConfig = new SparkMaxConfig();
-    // Creates the motors configurations.
-
     private SparkClosedLoopController m_motorPID;
-
-    private static double m_motorGearing = 1;
 
     public Manipulator() {
         motorBackground();
@@ -37,22 +32,23 @@ public class Manipulator extends SubsystemBase {
 
     public void Intake() {
         m_setSpeed = shooterConstants.kIntake;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
     }
 
     public void Shoot() {
         m_setSpeed = shooterConstants.kShoot;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
     }
 
     public void Stop() {
         m_setSpeed = shooterConstants.kDefault;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Shooter Set Velocity", m_setSpeed);
+        SmartDashboard.putnumber("Shooter True Velocity", getVelocity());
     }
 
     public double getVelocity() {
@@ -68,7 +64,7 @@ public class Manipulator extends SubsystemBase {
 
     public void setVelocity(double speed) {
         m_setSpeed = speed;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
     }
 
     private void motorBackground() {
@@ -84,6 +80,7 @@ public class Manipulator extends SubsystemBase {
                 .i(Constants.shooterConstants.kI)
                 .d(Constants.shooterConstants.kD)
                 .outputRange(-1, 1);
+
         m_motorConfig.idleMode(IdleMode.kBrake);
         m_motorConfig.smartCurrentLimit(Constants.shooterConstants.kLimit);
         m_motor.configure(m_motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);

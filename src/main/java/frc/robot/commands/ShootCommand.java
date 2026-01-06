@@ -25,7 +25,7 @@ public class ShootCommand extends Command {
 
     @Override
     public void initialize() {
-        m_shoulder.setAngle(Constants.ShoulderConstants.kShoot, 0);
+        m_shoulder.setAngle(Constants.ShoulderConstants.kShoot);
     }
 
     @Override

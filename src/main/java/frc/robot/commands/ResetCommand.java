@@ -18,7 +18,7 @@ public class ResetCommand extends Command{
     @Override
     public void initialize() {
         m_manipulator.setVelocity(Constants.shooterConstants.kDefault);
-        m_shoulder.setAngle(Constants.ShoulderConstants.kDefault, 0);
+        m_shoulder.setAngle(Constants.ShoulderConstants.kDefault);
     }
 
     @Override

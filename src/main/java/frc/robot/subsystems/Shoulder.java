@@ -18,16 +18,10 @@ import frc.robot.Constants;
 
 
 public class Shoulder extends SubsystemBase {
-    private final SparkMax m_motor = new SparkMax(Constants.ShoulderConstants.kMotorPort, MotorType.kBrushless);
-        //Creates the pitchers motor.
-
+    private final SparkMax m_motor = 
+            new SparkMax(Constants.ShoulderConstants.kMotorPort, MotorType.kBrushless);
     private final SparkMaxConfig m_motorConfig = new SparkMaxConfig();
-    // Creates the motors configurations.
-
     private SparkClosedLoopController m_motorPID;
-
-    private static double m_motorGearing = 25;
-
     private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
 
     public Shoulder() {
@@ -35,12 +29,11 @@ public class Shoulder extends SubsystemBase {
     }
 
     private double m_setAngle = Constants.ShoulderConstants.kDefault;
-    private double m_setPower = Constants.ShoulderConstants.kPDefault;
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Pitcher Set Angle", m_setAngle);
-        SmartDashboard.putNumber("Pitcher Set Speed", m_setPower);
+        SmartDashboard.putNumber("Pitcher True Angle", getPosition());
     }
 
     public double getSetAngle() {
@@ -65,25 +58,22 @@ public class Shoulder extends SubsystemBase {
 
     public void Intake(){
         m_setAngle = Constants.ShoulderConstants.kIntake;
-        m_motorPID.setReference(m_setPower, ControlType.kVelocity);
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
     }
 
     public void Shoot() {
         m_setAngle = Constants.ShoulderConstants.kShoot;
-        m_motorPID.setReference(m_setPower, ControlType.kVelocity);
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
     }
 
     public void Home() {
         m_setAngle = Constants.ShoulderConstants.kDefault;
         m_motorPID.setReference(m_setPower, ControlType.kVelocity);
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
     }
 
-    public void setAngle(double angle, double power) {
+    public void setAngle(double angle) {
         m_setAngle = angle;
-        m_setPower = power;
 
         if (m_setAngle >= Constants.ShoulderConstants.kMax) {
             m_setAngle = Constants.ShoulderConstants.kMax;
@@ -91,16 +81,7 @@ public class Shoulder extends SubsystemBase {
             m_setAngle = Constants.ShoulderConstants.kMin;
         }
 
-        if (m_setPower >= Constants.ShoulderConstants.kPMax) {
-            m_setPower = Constants.ShoulderConstants.kPMax;
-        } else if (m_setPower <= Constants.ShoulderConstants.kPMin) {
-            m_setPower = Constants.ShoulderConstants.kPMin;
-        } else if (m_setPower == 0) {
-            m_setPower = Constants.ShoulderConstants.kPDefault;
-        }
-
-        m_motorPID.setReference(m_setPower, ControlType.kVelocity);
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
     }
 
     private void motorBackground() {
@@ -116,6 +97,17 @@ public class Shoulder extends SubsystemBase {
                 .i(Constants.ShoulderConstants.kI)
                 .d(Constants.ShoulderConstants.kD)
                 .outputRange(-1, 1);
+
+        m_motorConfig.closedLoop.maxMotion
+                .maxVelocity(ShoulderConstants.maxMotion.kV)
+                .maxAcceleration(ShoulderConstants.maxMotion.kA)
+                .allowedClosedLoopError(ShoulderConstants.maxMotion.kE);
+
+        m_motorConfig.softLimit
+                .forwardSoftLimit(ShoulderConstants.kforwardLim)
+                .forwardSoftLimitEnabled(true)
+                .reverseSoftLimit(ShoulderConstants.kreverseLim)
+                .reverseSoftLimitEnabled(true);
 
         m_motorConfig.idleMode(IdleMode.kBrake);
         m_motorConfig.smartCurrentLimit(Constants.CurrentLimit.kShoulder);

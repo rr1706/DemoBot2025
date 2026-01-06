@@ -19,7 +19,6 @@ public class RobotContainer {
   private final Manipulator m_manipulator = new Manipulator();
   private final Shoulder m_pitcher = new Shoulder();
   private final Drivetrain m_driveTrain = new Drivetrain();
-  private final RobotSide2d m_simulation = new RobotSide2d();
 
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -58,8 +57,8 @@ public class RobotContainer {
     m_fullController.rightBumper().onTrue(new InstantCommand(()-> m_pitcher.Shoot()))
                                   .onFalse(new InstantCommand(()-> m_pitcher.Home()));
 
-    m_fullController.povUp().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5), 0)));
-    m_fullController.povDown().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5), 0)));
+    m_fullController.povUp().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5))));
+    m_fullController.povDown().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5))));
 
     m_fullController.povLeft().onTrue(new InstantCommand(()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(5))));
     m_fullController.povRight().onTrue(new InstantCommand (()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(-5))));
@@ -70,7 +69,11 @@ public class RobotContainer {
      // Voids the Auto Command.
   }
 
-  public void updateSims() {
-    m_simulation.pitcherAngle(m_pitcher.getSetAngle(), m_pitcher.getPosition());
+  public double getPitcherPose() {
+    return m_pitcher.getPosition();
+  }
+
+  public double getPitcherSetPose() {
+    return m_pitcher.getSetAngle();
   }
 }

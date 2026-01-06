@@ -20,6 +20,7 @@ public final class Constants {
           public static final double kIntake = -5.0;
           public static final double kMotorPort = 10;
           public static final int kLimit = 100;
+          public static final int kGearing = 1;
   }
 
   public static class ShoulderConstants {
@@ -35,6 +36,15 @@ public final class Constants {
           public static final double kPDefault = 0.5;
           public static final double kDefault = 20.0;
           public static final int kMotorPort = 9;
+          public static final double kforwardLim = 0.0;
+          public static final double kreverseLim = 0.0;
+          public static final int kGearing = 25;
+
+          public class maxMotion {
+            public static final double kV = 100.0;
+            public static final double kA = 10.0;
+            public static final double kE = 1.0;
+          }
   }
 
   public static class OperatorConstants {
