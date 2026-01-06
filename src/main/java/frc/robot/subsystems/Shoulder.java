@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.ShoulderConstants;
 
 
 public class Shoulder extends SubsystemBase {
@@ -68,7 +69,6 @@ public class Shoulder extends SubsystemBase {
 
     public void Home() {
         m_setAngle = Constants.ShoulderConstants.kDefault;
-        m_motorPID.setReference(m_setPower, ControlType.kVelocity);
         m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
     }
 
@@ -88,8 +88,8 @@ public class Shoulder extends SubsystemBase {
         m_motorPID = m_motor.getClosedLoopController();
         
         m_motorConfig.encoder
-            .positionConversionFactor(m_motorGearing)
-            .velocityConversionFactor(m_motorGearing/60);
+            .positionConversionFactor(Constants.ShoulderConstants.kGearing)
+            .velocityConversionFactor(Constants.ShoulderConstants.kGearing/60);
 
         m_motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

@@ -48,7 +48,7 @@ public class Manipulator extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Shooter Set Velocity", m_setSpeed);
-        SmartDashboard.putnumber("Shooter True Velocity", getVelocity());
+        SmartDashboard.putNumber("Shooter True Velocity", getVelocity());
     }
 
     public double getVelocity() {
@@ -71,8 +71,8 @@ public class Manipulator extends SubsystemBase {
         m_motorPID = m_motor.getClosedLoopController();
 
         m_motorConfig.encoder
-                .positionConversionFactor(m_motorGearing)
-                .velocityConversionFactor(m_motorGearing / 60);
+                .positionConversionFactor(Constants.shooterConstants.kGearing)
+                .velocityConversionFactor(Constants.shooterConstants.kGearing / 60);
 
         m_motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

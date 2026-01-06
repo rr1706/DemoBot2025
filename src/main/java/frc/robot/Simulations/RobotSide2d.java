@@ -19,7 +19,7 @@ public class RobotSide2d {
 
     private final Mechanism2d pitcherMech = new Mechanism2d(0, 0);
     private final MechanismRoot2d pitcherRoot = pitcherMech.getRoot("Pitcher Root", 1, 0);
-    private final MechanismLigament2d pitcherSet = pithcerRoot.append(new MechanismLigament2d("Pitcher Set", 1, m_setAngle, 6.0, new Color8Bit(Color.kAliceBlue)));
+    private final MechanismLigament2d pitcherSet = pitcherRoot.append(new MechanismLigament2d("Pitcher Set", 1, m_setAngle, 6.0, new Color8Bit(Color.kAliceBlue)));
     private final MechanismLigament2d pitcherTrue = pitcherRoot.append(new MechanismLigament2d("Pitcher True", 1, m_setAngle, 6.0, new Color8Bit(Color.kRed)));
 
 
