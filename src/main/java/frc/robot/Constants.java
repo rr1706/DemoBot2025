@@ -10,39 +10,34 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   
   public static class shooterConstants {
-          public static final double kP = 1.0;
+          public static final double kP = 0.001;
           public static final double kI = 0.0;
-          public static final double kD = 1.0;
-          public static final double kShoot = 50.0;
+          public static final double kD = 0.0;
+          public static final double kShoot = 4.0;
           public static final double kDefault = 0.0;
-          public static final double kMax = 100.0;
-          public static final double kMin = -100.0;
+          public static final double kMax = 50.0;
+          public static final double kMin = -50.0;
           public static final double kIntake = -5.0;
-          public static final double kMotorPort = 10;
+          public static final int kMotorPort = 10;
           public static final int kLimit = 100;
-          public static final int kGearing = 1;
   }
 
   public static class ShoulderConstants {
-          public static final double kP = 1.0;
+          public static final double kP = 0.0001;
           public static final double kI = 0.0;
-          public static final double kD = 1.0;
-          public static final double kShoot = 40.0;
-          public static final double kIntake = 10.0;
-          public static final double kMax = 150.0;
-          public static final double kMin = 10.0;
-          public static final double kPMax = 1.0;
-          public static final double kPMin = -1.0;
-          public static final double kPDefault = 0.5;
-          public static final double kDefault = 20.0;
+          public static final double kD = 0.0;
+          public static final double kShoot = 24.5;
+          public static final double kIntake = 15.0;
+          public static final double kMax = 24.5;
+          public static final double kMin = 0;
+          public static final double kDefault = 10.0;
           public static final int kMotorPort = 9;
-          public static final double kforwardLim = 0.0;
+          public static final double kforwardLim = 24.5;
           public static final double kreverseLim = 0.0;
-          public static final int kGearing = 25;
 
           public class maxMotion {
-            public static final double kV = 100.0;
-            public static final double kA = 10.0;
+            public static final double kV = 2500.0;
+            public static final double kA = 10000.0;
             public static final double kE = 1.0;
           }
   }
@@ -159,7 +154,7 @@ public static final class DriveConstants {
   } */
 }
 public static final class CurrentLimit {
-  public static final int kShoulder = 60;
+  public static final int kShoulder = 20;
   public static final int kFeeder = 60;
   public static final int kPivot = 30;
   public static final int kDrive = 50;

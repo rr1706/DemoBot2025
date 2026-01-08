@@ -11,6 +11,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -59,17 +61,17 @@ public class Shoulder extends SubsystemBase {
 
     public void Intake(){
         m_setAngle = Constants.ShoulderConstants.kIntake;
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
+        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
     }
 
     public void Shoot() {
         m_setAngle = Constants.ShoulderConstants.kShoot;
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
+        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
     }
 
     public void Home() {
         m_setAngle = Constants.ShoulderConstants.kDefault;
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
+        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
     }
 
     public void setAngle(double angle) {
@@ -81,15 +83,11 @@ public class Shoulder extends SubsystemBase {
             m_setAngle = Constants.ShoulderConstants.kMin;
         }
 
-        m_motorPID.setReference(Units.degreesToRadians(m_setAngle), ControlType.kMAXMotionPositionControl);
+        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
     }
 
     private void motorBackground() {
         m_motorPID = m_motor.getClosedLoopController();
-        
-        m_motorConfig.encoder
-            .positionConversionFactor(Constants.ShoulderConstants.kGearing)
-            .velocityConversionFactor(Constants.ShoulderConstants.kGearing/60);
 
         m_motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
@@ -98,10 +96,11 @@ public class Shoulder extends SubsystemBase {
                 .d(Constants.ShoulderConstants.kD)
                 .outputRange(-1, 1);
 
-        m_motorConfig.closedLoop.maxMotion
-                .maxVelocity(ShoulderConstants.maxMotion.kV)
-                .maxAcceleration(ShoulderConstants.maxMotion.kA)
-                .allowedClosedLoopError(ShoulderConstants.maxMotion.kE);
+        m_motorConfig.closedLoop.smartMotion
+                .maxAcceleration(Constants.ShoulderConstants.maxMotion.kA)
+                .maxVelocity(Constants.ShoulderConstants.maxMotion.kV)
+                .allowedClosedLoopError(Constants.ShoulderConstants.maxMotion.kE);
+        
 
         m_motorConfig.softLimit
                 .forwardSoftLimit(ShoulderConstants.kforwardLim)

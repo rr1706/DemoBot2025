@@ -11,6 +11,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -19,16 +22,27 @@ import frc.robot.Constants.shooterConstants;
 public class Manipulator extends SubsystemBase {
 
     private final SparkMax m_motor = 
-            new SparkMax(Constants.ShoulderConstants.kMotorPort, MotorType.kBrushless);
+            new SparkMax(Constants.shooterConstants.kMotorPort, MotorType.kBrushless);
     private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
     private final SparkMaxConfig m_motorConfig = new SparkMaxConfig();
     private SparkClosedLoopController m_motorPID;
+    private final Debouncer m_debounce = new Debouncer(0.090, DebounceType.kBoth);
 
     public Manipulator() {
         motorBackground();
     }
 
     private double m_setSpeed = 0.0;
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Shooter Set Velocity", m_setSpeed);
+        SmartDashboard.putNumber("Shooter True Velocity", getVelocity());
+    }
+
+    public boolean hasBall(){
+        return m_debounce.calculate(m_motor.getOutputCurrent() >= 80.0 && m_setSpeed < -0.1);
+    }
 
     public void Intake() {
         m_setSpeed = shooterConstants.kIntake;
@@ -43,12 +57,6 @@ public class Manipulator extends SubsystemBase {
     public void Stop() {
         m_setSpeed = shooterConstants.kDefault;
         m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
-    }
-
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Shooter Set Velocity", m_setSpeed);
-        SmartDashboard.putNumber("Shooter True Velocity", getVelocity());
     }
 
     public double getVelocity() {
@@ -69,10 +77,6 @@ public class Manipulator extends SubsystemBase {
 
     private void motorBackground() {
         m_motorPID = m_motor.getClosedLoopController();
-
-        m_motorConfig.encoder
-                .positionConversionFactor(Constants.shooterConstants.kGearing)
-                .velocityConversionFactor(Constants.shooterConstants.kGearing / 60);
 
         m_motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)

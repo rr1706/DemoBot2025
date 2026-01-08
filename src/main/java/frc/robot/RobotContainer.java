@@ -24,25 +24,20 @@ public class RobotContainer {
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_fullController =
       new CommandXboxController(OperatorConstants.kFullPort);
-
-  private boolean controllerInUse = false;
   
   public RobotContainer() {
     configureBindings();
-    if (controllerInUse) {
       m_driveTrain.setDefaultCommand(new DriveByController(m_driveTrain, m_driverController));
-    } else {
-      m_driveTrain.setDefaultCommand(new DriveByController(m_driveTrain, m_fullController));
-    }
-  }
+}
 
   private void configureBindings() {
     m_driverController.leftTrigger().onTrue(new IntakeCommand(m_manipulator, m_pitcher))
-                                    .onFalse(new ResetCommand(m_manipulator, m_pitcher));
+                                     .onFalse(new ResetCommand(m_manipulator, m_pitcher));
 
     m_driverController.rightTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher))
-                                    .onFalse(new ResetCommand(m_manipulator, m_pitcher));
+                                     .onFalse(new ResetCommand(m_manipulator, m_pitcher));
 
+    m_driverController.a().onTrue(new InstantCommand(()-> m_driveTrain.resetOdometry(new Pose2d())));
 
         //For finner control set the controller port to 1 in DriveStation.
     m_fullController.a().onTrue(new InstantCommand(()-> m_driveTrain.resetOdometry(new Pose2d())));
@@ -68,7 +63,7 @@ public class RobotContainer {
     return new WaitCommand(0.0);
      // Voids the Auto Command.
   }
-
+ 
   public double getPitcherPose() {
     return m_pitcher.getPosition();
   }

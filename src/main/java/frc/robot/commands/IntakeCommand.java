@@ -18,6 +18,10 @@ public class IntakeCommand extends Command {
         }
     }
 
+    private boolean Ball() {
+        return m_manipulator.hasBall();
+    }
+
     public IntakeCommand(Manipulator manipulator, Shoulder shoulder) {
         addRequirements(manipulator, shoulder);
         m_manipulator = manipulator;
@@ -33,6 +37,10 @@ public class IntakeCommand extends Command {
     public void execute() {
         if (isReady()) {
             m_manipulator.setVelocity(Constants.shooterConstants.kIntake);
+        }
+
+        if (Ball()) {
+            m_manipulator.setVelocity(0.0);
         }
     }
 
