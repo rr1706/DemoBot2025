@@ -20,6 +20,17 @@ public class RobotSide2d {
 
     private static double PitcherLenght = Units.inchesToMeters(10);
 
+    private double m_setAngle = 90;
+    private double m_trueAngle = 90;
+
+    public void pitcherAngle(double setAngle) {
+        m_setAngle = setAngle;
+    }
+
+    public void pitcherRealAngle(double angle) {
+        m_trueAngle = angle;
+    }
+
     private final Mechanism2d m_mech2d = new Mechanism2d(DisplayLenght, DisplayHeight);
     // Create Robot Frame root point 8in form the left side and 2in off the ground.
     private final MechanismRoot2d mFrame2dRoot = m_mech2d.getRoot("Frame Root", FrameOffsetLength, FrameOffsetHeight);
@@ -28,15 +39,12 @@ public class RobotSide2d {
 
     // Create Elevator root point.
     private final MechanismRoot2d m_pitcher2dRoot = m_mech2d.getRoot("pitcher Root Upper", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
-    private final MechanismLigament2d m_pitcher2d = m_pitcher2dRoot.append(new MechanismLigament2d("pitcher Upper", PitcherLenght, 90, 6.0, new Color8Bit(Color.kAliceBlue)));
+    private final MechanismLigament2d m_pitcher2d = m_pitcher2dRoot.append(new MechanismLigament2d("pitcher Upper", PitcherLenght, m_setAngle, 6.0, new Color8Bit(Color.kAliceBlue)));
+
+    private final MechanismRoot2d m_pitcherSet2dRoot = m_mech2d.getRoot("pitcher Root Lower", (RobotFrameLength - Units.inchesToMeters(4)), (FrameOffsetHeight+RobotFrameHeight +Units.inchesToMeters(2)));
+    private final MechanismLigament2d m_pitcherSet2d = m_pitcherSet2dRoot.append(new MechanismLigament2d("pitcher Lower", PitcherLenght, m_trueAngle, 6.0, new Color8Bit(Color.kRed)));
 
     public RobotSide2d() {
-        // Publish Mechanism2d to SmartDashboard
-        // To view the elevator visulization, select Network Tables -> SmartDashboard -> Elevator Sim
         SmartDashboard.putData("Robot Sim", m_mech2d);
-    }
-
-    public void updateDisplayPose(double pitcherAngle){
-        m_pitcher2d.setAngle(90-Units.rotationsToDegrees(pitcherAngle));
     }
 }

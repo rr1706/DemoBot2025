@@ -7,32 +7,39 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-
 public final class Constants {
   
   public static class shooterConstants {
-          public static final double kVelocity = 0.5;
-          public static final double kVelocityStop = 0;
-          public static final double kAngle = 0.5;
-          public static final double kAngleStop = 0;
-          public static final double kVelocityIntake = -5.0;
-          public static final double kVelocityIntakeStop = 0;
-          public static final double kAMax = 100;
-          public static final double kAMin = 0;
-          public static final double kVMax = 100;
-                    //PID values for the ShooterMotor.
-          public static final double kVP = 1;
-          public static final double kVI = 0;
-          public static final double kVD = 0;
-                    //PID Values for the ShooterAngleMotor.
-          public static final double kAP = 1;
-          public static final double kAI = 0;
-          public static final double kAD = 0;
+          public static final double kP = 1.0;
+          public static final double kI = 0.0;
+          public static final double kD = 1.0;
+          public static final double kShoot = 50.0;
+          public static final double kDefault = 0.0;
+          public static final double kMax = 100.0;
+          public static final double kMin = -100.0;
+          public static final double kIntake = -5.0;
+          public static final double kMotorPort = 10;
+          public static final int kLimit = 100;
+  }
+
+  public static class ShoulderConstants {
+          public static final double kP = 1.0;
+          public static final double kI = 0.0;
+          public static final double kD = 1.0;
+          public static final double kShoot = 40.0;
+          public static final double kIntake = 10.0;
+          public static final double kMax = 150.0;
+          public static final double kMin = 10.0;
+          public static final double kPMax = 1.0;
+          public static final double kPMin = -1.0;
+          public static final double kPDefault = 0.5;
+          public static final double kDefault = 20.0;
+          public static final int kMotorPort = 9;
   }
 
   public static class OperatorConstants {
          public static final int kDriverControllerPort = 0;
-         public static final int kDemoControllerPort = 2;
+         public static final int kFullPort = 1;
          public static final double kDeadband = 0.01;
          public static final double kCubic = 0.95;
          public static final double kLinear = 0.05;
@@ -142,7 +149,7 @@ public static final class DriveConstants {
   } */
 }
 public static final class CurrentLimit {
-  public static final int kIntake = 60;
+  public static final int kShoulder = 60;
   public static final int kFeeder = 60;
   public static final int kPivot = 30;
   public static final int kDrive = 50;
