@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -30,83 +31,63 @@ import frc.robot.Constants.shooterConstants;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private final SparkMax m_motor = new SparkMax(m_motorPort, MotorType.kBrushless);
-        //Creates the shooters motor.
-        private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
+    private DoubleTopic m_rollerAngleTopic = NetworkTableInstance.getDefault().getTable("Roller")
+            .getDoubleTopic("/Roller/Velocity");
+    private DoublePublisher m_rollerAnglePublish = m_rollerAngleTopic.publish();
+
+    private final SparkMax m_roller = new SparkMax(m_rollerPort, MotorType.kBrushless);
+    // Roller Motor
+
+    private final SparkMaxConfig m_rollerMotorConfig = new SparkMaxConfig();
+    // Creates the motors configurations.
+
+    private final SparkClosedLoopController m_rollerPID;
+
+    private final static int m_rollerPort = 9;
+    // Roller port, could be changed.
+
+    private final static double m_rollerGearing = 1;
+    // Gearing for the Rotation and Roller motors TBC.
+
+    private final RelativeEncoder m_rollerEncoder = m_roller.getEncoder();
+
+    public ShooterSubsystem() {
+        m_rollerPID = m_roller.getClosedLoopController();
 
 
-    private double m_speed = getVelocity();
-    
-        private DoubleTopic m_motorTopic = NetworkTableInstance.getDefault().getTable("Shooter")
-                .getDoubleTopic("/Shooter/Velocity");
-            //Creates location on the smartdaskboard for shooter.
-        private DoublePublisher m_motorPublish = m_motorTopic.publish();
-    
-        private final SparkMaxConfig m_motorMotorConfig = new SparkMaxConfig();
-        // Creates the motors configurations.
-    
-        private SparkClosedLoopController m_motorPID;
-    
-        private final static int m_motorPort = 9;
-    
-        private static double m_motorGearing = 1;
-    
-        public ShooterSubsystem() {
-            motorBackground();
-        }
-    
-        private void IntakeStop() {
-            m_motorPID.setReference(shooterConstants.kVelocityIntakeStop, ControlType.kVelocity);
-        }
-    
-        private void ShootStop() {
-            m_motorPID.setReference(Units.degreesToRotations((shooterConstants.kVelocityStop)), ControlType.kVelocity);
-        }
-    
-        @Override
-        public void periodic() {       
-            m_motorPublish.set(Units.rotationsToDegrees(getVelocity()));
-                SmartDashboard.getNumber("shooter Velocity", getVelocity());
-        }
-    
-        public double getVelocity() {
-            double Velocity = m_motorEncoder.getVelocity();
-            SmartDashboard.getNumber("Shooter Velocity", Velocity);
-            return Velocity;
-        }
-    
-        public double changeVelocity(double adjust) {
-            m_speed += adjust;
-        return m_speed;
-    }
+        m_rollerMotorConfig.encoder
+                .positionConversionFactor(m_rollerGearing)
+                .velocityConversionFactor(m_rollerGearing / 60);
 
-    public Command IntakeCommandStop() {
-        return this.run(() -> this.IntakeStop());
-    }
-
-    public Command ShootCommandStop() {
-        return this.run(() -> this.ShootStop());
-    }
-
-    public void setVelocity(double speed) {
-        m_speed = speed;
-        m_motorPID.setReference(m_speed, ControlType.kVelocity);
-    }
-
-    private void motorBackground() {
-        m_motorPID = m_motor.getClosedLoopController();
-
-        m_motorMotorConfig.encoder
-          .positionConversionFactor(m_motorGearing)
-          .velocityConversionFactor(m_motorGearing / 60);
-
-        m_motorMotorConfig.closedLoop
+        m_rollerMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .p(Constants.shooterConstants.kVP)
-                .i(Constants.shooterConstants.kVI)
-                .d(Constants.shooterConstants.kVD)
+                .p(0.1)
+                .i(0)
+                .d(0)
                 .outputRange(-1, 1);
-        m_motorMotorConfig.idleMode(IdleMode.kBrake);
-        m_motor.configure(m_motorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        m_roller.configure(m_rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    @Override
+    public void periodic() {
+        m_rollerAnglePublish.set(Units.rotationsToDegrees(getVelocity()));
+                // Converts to correct unit then published to SmartDashboard.
+    }
+
+    public void ShooterRoller(double target) {
+        m_rollerPID.setReference(Units.degreesToRotations(target), ControlType.kVelocity);
+        // Allows you to change target value later in code for the roller motor.
+    }
+
+    public double changeVelocity(double input) {
+        double currentVelocity = getVelocity();
+        double newVelocity = currentVelocity + input;
+        return newVelocity;
+    }
+
+    public double getVelocity() {
+        double Velocity = m_rollerEncoder.getPosition();
+        SmartDashboard.getNumber("Roller Velocity", Velocity);
+        return Velocity;
     }
 }
