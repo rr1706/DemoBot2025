@@ -80,6 +80,7 @@ public class Manipulator extends SubsystemBase {
 
         m_motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .velocityFF(Constants.shooterConstants.kFF)
                 .p(Constants.shooterConstants.kP)
                 .i(Constants.shooterConstants.kI)
                 .d(Constants.shooterConstants.kD)

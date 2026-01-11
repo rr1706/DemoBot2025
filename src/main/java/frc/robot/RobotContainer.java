@@ -31,10 +31,9 @@ public class RobotContainer {
 }
 
   private void configureBindings() {
-    m_driverController.leftTrigger().onTrue(new IntakeCommand(m_manipulator, m_pitcher))
-                                     .onFalse(new ResetCommand(m_manipulator, m_pitcher));
+    m_driverController.leftTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher)).onFalse(new ResetCommand(m_manipulator, m_pitcher));
 
-    m_driverController.rightTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher))
+    m_driverController.leftBumper().onTrue(new IntakeCommand(m_manipulator, m_pitcher))
                                      .onFalse(new ResetCommand(m_manipulator, m_pitcher));
 
     m_driverController.a().onTrue(new InstantCommand(()-> m_driveTrain.resetOdometry(new Pose2d())));
@@ -52,11 +51,11 @@ public class RobotContainer {
     m_fullController.rightBumper().onTrue(new InstantCommand(()-> m_pitcher.Shoot()))
                                   .onFalse(new InstantCommand(()-> m_pitcher.Home()));
 
-    m_fullController.povUp().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5))));
-    m_fullController.povDown().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5))));
+    m_driverController.povUp().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(5))));
+    m_driverController.povDown().onTrue(new InstantCommand(()-> m_pitcher.setAngle(m_pitcher.changePitch(-5))));
 
-    m_fullController.povLeft().onTrue(new InstantCommand(()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(5))));
-    m_fullController.povRight().onTrue(new InstantCommand (()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(-5))));
+    m_driverController.povLeft().onTrue(new InstantCommand(()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(5))));
+    m_driverController.povRight().onTrue(new InstantCommand (()-> m_manipulator.setVelocity(m_manipulator.changeVelocity(-5))));
   }
 
   public Command getAutonomousCommand() {

@@ -10,7 +10,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   
   public static class shooterConstants {
-          public static final double kP = 0.001;
+    public static final double kFF = 1.0/5820.0;
+
+          public static final double kP = 0.00;
           public static final double kI = 0.0;
           public static final double kD = 0.0;
           public static final double kShoot = 4.0;

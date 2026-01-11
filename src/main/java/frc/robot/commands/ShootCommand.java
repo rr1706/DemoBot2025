@@ -9,13 +9,6 @@ public class ShootCommand extends Command {
     private final Manipulator m_manipulator;
     private final Shoulder m_shoulder;
     private final double tol = 1.0;
-    private boolean isReady() {
-        if (Math.abs(m_shoulder.getPosition() - Constants.ShoulderConstants.kShoot) <= tol) {
-            return true;
-        } else {
-            return false;
-        }
-    }
     
     public ShootCommand(Manipulator manipulator, Shoulder shoulder) {
         addRequirements(shoulder, manipulator);
@@ -26,13 +19,12 @@ public class ShootCommand extends Command {
     @Override
     public void initialize() {
         m_shoulder.setAngle(Constants.ShoulderConstants.kShoot);
+        m_manipulator.setVelocity(5000);
     }
 
     @Override
     public void execute() {
-        if (isReady()) {
-            m_manipulator.setVelocity(Constants.shooterConstants.kShoot);
-        }
+
     }
 
     @Override
