@@ -10,11 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 public final class Constants {
   
   public static class shooterConstants {
-    public static final double kFF = 1.0/5820.0;
-
-          public static final double kP = 0.00;
-          public static final double kI = 0.0;
-          public static final double kD = 0.0;
+          public static final double kFF = 1.0/5820.0;
           public static final double kShoot = 4.0;
           public static final double kDefault = 0.0;
           public static final double kMax = 50.0;
@@ -22,10 +18,15 @@ public final class Constants {
           public static final double kIntake = -5.0;
           public static final int kMotorPort = 10;
           public static final int kLimit = 100;
+          public static final double kP = 0.0001;
+          public static final double kI = 0.0;
+          public static final double kV = 0.0007;
+          public static final double kMAXACCEL = 2500.0;
+          public static double kMAXVELOCITY = 10000.0;
   }
 
   public static class ShoulderConstants {
-          public static final double kP = 0.0001;
+          public static final double kP = 0.1;
           public static final double kI = 0.0;
           public static final double kD = 0.0;
           public static final double kShoot = 24.5;

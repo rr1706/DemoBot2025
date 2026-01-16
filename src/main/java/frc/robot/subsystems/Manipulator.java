@@ -46,17 +46,17 @@ public class Manipulator extends SubsystemBase {
 
     public void Intake() {
         m_setSpeed = shooterConstants.kIntake;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
+        m_motorPID.setReference(m_setSpeed, ControlType.kMAXMotionVelocityControl);
     }
 
     public void Shoot() {
         m_setSpeed = shooterConstants.kShoot;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
+        m_motorPID.setReference(m_setSpeed, ControlType.kMAXMotionVelocityControl);
     }
 
     public void Stop() {
         m_setSpeed = shooterConstants.kDefault;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
+        m_motorPID.setReference(m_setSpeed, ControlType.kMAXMotionVelocityControl);
     }
 
     public double getVelocity() {
@@ -72,7 +72,7 @@ public class Manipulator extends SubsystemBase {
 
     public void setVelocity(double speed) {
         m_setSpeed = speed;
-        m_motorPID.setReference(m_setSpeed, ControlType.kVelocity);
+        m_motorPID.setReference(m_setSpeed, ControlType.kMAXMotionVelocityControl);
     }
 
     private void motorBackground() {
@@ -80,11 +80,15 @@ public class Manipulator extends SubsystemBase {
 
         m_motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .velocityFF(Constants.shooterConstants.kFF)
-                .p(Constants.shooterConstants.kP)
-                .i(Constants.shooterConstants.kI)
-                .d(Constants.shooterConstants.kD)
+                .p(shooterConstants.kP)
+                .i(shooterConstants.kI)
+                .velocityFF(shooterConstants.kFF)
                 .outputRange(-1, 1);
+        
+        m_motorConfig.closedLoop.maxMotion
+                .maxAcceleration(shooterConstants.kMAXACCEL)
+                .maxVelocity(shooterConstants.kMAXVELOCITY)
+                .allowedClosedLoopError(1);
 
         m_motorConfig.idleMode(IdleMode.kBrake);
         m_motorConfig.smartCurrentLimit(Constants.shooterConstants.kLimit);

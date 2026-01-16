@@ -6,7 +6,12 @@ import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.ResetCommand;
 import frc.robot.commands.ShootCommand;
 import frc.robot.simulations.RobotSide2d;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -20,13 +25,18 @@ public class RobotContainer {
   private final Shoulder m_pitcher = new Shoulder();
   private final Drivetrain m_driveTrain = new Drivetrain();
 
+  private final SendableChooser<Command> autoChooser;
+
+
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_fullController =
       new CommandXboxController(OperatorConstants.kFullPort);
   
   public RobotContainer() {
-    configureBindings();
+     autoChooser = AutoBuilder.buildAutoChooser("Center");
+      SmartDashboard.putData("Auto Mode", autoChooser);
+      configureBindings();
       m_driveTrain.setDefaultCommand(new DriveByController(m_driveTrain, m_driverController));
 }
 
@@ -59,8 +69,8 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new WaitCommand(0.0);
-     // Voids the Auto Command.
+    return autoChooser.getSelected();
+    // Voids the Auto Command.
   }
  
   public double getPitcherPose() {

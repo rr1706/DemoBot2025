@@ -61,17 +61,17 @@ public class Shoulder extends SubsystemBase {
 
     public void Intake(){
         m_setAngle = Constants.ShoulderConstants.kIntake;
-        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
+        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
     }
 
     public void Shoot() {
         m_setAngle = Constants.ShoulderConstants.kShoot;
-        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
+        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
     }
 
     public void Home() {
         m_setAngle = Constants.ShoulderConstants.kDefault;
-        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
+        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
     }
 
     public void setAngle(double angle) {
@@ -83,7 +83,7 @@ public class Shoulder extends SubsystemBase {
             m_setAngle = Constants.ShoulderConstants.kMin;
         }
 
-        m_motorPID.setReference(m_setAngle, ControlType.kSmartMotion);
+        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
     }
 
     private void motorBackground() {
@@ -96,7 +96,7 @@ public class Shoulder extends SubsystemBase {
                 .d(Constants.ShoulderConstants.kD)
                 .outputRange(-1, 1);
 
-        m_motorConfig.closedLoop.smartMotion
+        m_motorConfig.closedLoop.maxMotion
                 .maxAcceleration(Constants.ShoulderConstants.maxMotion.kA)
                 .maxVelocity(Constants.ShoulderConstants.maxMotion.kV)
                 .allowedClosedLoopError(Constants.ShoulderConstants.maxMotion.kE);
