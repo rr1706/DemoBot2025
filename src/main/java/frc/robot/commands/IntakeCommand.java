@@ -31,18 +31,11 @@ public class IntakeCommand extends Command {
     @Override
     public void initialize() {
         m_shoulder.setAngle(Constants.ShoulderConstants.kIntake);
+        m_manipulator.setVelocity(Constants.shooterConstants.kIntake);
     }
 
     @Override
-    public void execute() {
-        if (isReady()) {
-            m_manipulator.setVelocity(Constants.shooterConstants.kIntake);
-        }
-
-        if (Ball()) {
-            m_manipulator.setVelocity(0.0);
-        }
-    }
+    public void execute() {}
 
     @Override
     public void end(boolean interrupted) {}

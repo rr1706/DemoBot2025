@@ -11,7 +11,7 @@ public final class Constants {
   
   public static class shooterConstants {
           public static final double kFF = 1.0/5820.0;
-          public static final double kShoot = 4.0;
+          public static final double kShoot = 5000.0;
           public static final double kDefault = 0.0;
           public static final double kMax = 50.0;
           public static final double kMin = -50.0;
@@ -21,7 +21,7 @@ public final class Constants {
           public static final double kP = 0.0001;
           public static final double kI = 0.0;
           public static final double kV = 0.0007;
-          public static final double kMAXACCEL = 2500.0;
+          public static final double kMAXACCEL = 4000.0;
           public static double kMAXVELOCITY = 10000.0;
   }
 

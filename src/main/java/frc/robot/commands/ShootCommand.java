@@ -19,7 +19,7 @@ public class ShootCommand extends Command {
     @Override
     public void initialize() {
         m_shoulder.setAngle(Constants.ShoulderConstants.kShoot);
-        m_manipulator.setVelocity(5000);
+        m_manipulator.setVelocity(Constants.shooterConstants.kShoot);
     }
 
     @Override

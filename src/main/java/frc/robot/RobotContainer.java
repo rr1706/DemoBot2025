@@ -41,9 +41,10 @@ public class RobotContainer {
 }
 
   private void configureBindings() {
-    m_driverController.leftTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher)).onFalse(new ResetCommand(m_manipulator, m_pitcher));
+    m_driverController.rightTrigger().onTrue(new ShootCommand(m_manipulator, m_pitcher))
+                                      .onFalse(new ResetCommand(m_manipulator, m_pitcher));
 
-    m_driverController.leftBumper().onTrue(new IntakeCommand(m_manipulator, m_pitcher))
+    m_driverController.leftTrigger().onTrue(new IntakeCommand(m_manipulator, m_pitcher))
                                      .onFalse(new ResetCommand(m_manipulator, m_pitcher));
 
     m_driverController.a().onTrue(new InstantCommand(()-> m_driveTrain.resetOdometry(new Pose2d())));
