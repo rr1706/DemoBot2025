@@ -2,24 +2,24 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.Manipulator;
-import frc.robot.subsystems.Shoulder;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.shooterHood;
 
 public class ShootCommand extends Command {
-    private final Manipulator m_manipulator;
-    private final Shoulder m_shoulder;
+    private final Shooter m_shooter;
+    private final shooterHood m_hood;
     private final double tol = 1.0;
     
-    public ShootCommand(Manipulator manipulator, Shoulder shoulder) {
-        addRequirements(shoulder, manipulator);
-        m_shoulder = shoulder;
-        m_manipulator = manipulator;
+    public ShootCommand(Shooter shooter, shooterHood hood) {
+        addRequirements(shooter, hood);
+        m_shooter = shooter;
+        m_hood = hood;
     }
 
     @Override
     public void initialize() {
-        m_shoulder.setAngle(Constants.ShoulderConstants.kShoot);
-        m_manipulator.setVelocity(Constants.shooterConstants.kShoot);
+        m_hood.setAngle(Constants.ShoulderConstants.kShoot);
+        m_shooter.setVelocity(Constants.shooterConstants.kShoot);
     }
 
     @Override

@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.shooterConstants;
 
-public class Manipulator extends SubsystemBase {
+public class Shooter extends SubsystemBase {
 
     private final SparkMax m_motor = 
             new SparkMax(Constants.shooterConstants.kMotorPort, MotorType.kBrushless);
@@ -28,7 +28,7 @@ public class Manipulator extends SubsystemBase {
     private SparkClosedLoopController m_motorPID;
     private final Debouncer m_debounce = new Debouncer(0.090, DebounceType.kBoth);
 
-    public Manipulator() {
+    public Shooter() {
         motorBackground();
     }
 

@@ -20,14 +20,14 @@ import frc.robot.Constants;
 import frc.robot.Constants.ShoulderConstants;
 
 
-public class Shoulder extends SubsystemBase {
+public class shooterHood extends SubsystemBase {
     private final SparkMax m_motor = 
             new SparkMax(Constants.ShoulderConstants.kMotorPort, MotorType.kBrushless);
     private final SparkMaxConfig m_motorConfig = new SparkMaxConfig();
     private SparkClosedLoopController m_motorPID;
     private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
 
-    public Shoulder() {
+    public shooterHood() {
         motorBackground();
     }
 
