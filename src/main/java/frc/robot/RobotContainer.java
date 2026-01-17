@@ -30,8 +30,6 @@ public class RobotContainer {
 
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_fullController =
-      new CommandXboxController(OperatorConstants.kFullPort);
   
   public RobotContainer() {
      autoChooser = AutoBuilder.buildAutoChooser("Center");
