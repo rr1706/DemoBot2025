@@ -23,6 +23,7 @@ public final class Constants {
           public static final double kV = 0.0007;
           public static final double kMAXACCEL = 4000.0;
           public static double kMAXVELOCITY = 10000.0;
+          public static final double kRun = 11;
   }
 
   public static class intakeConstants {
@@ -43,7 +44,7 @@ public final class Constants {
           public static final double kI = 0.0;
           public static final double kD = 0.0;
           public static final double kShoot = 24.5;
-          public static final double kIntake = 15.0;
+          public static final double kZero = 0.0;
           public static final double kMax = 24.5;
           public static final double kMin = 0;
           public static final double kDefault = 10.0;

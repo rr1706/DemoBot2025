@@ -58,11 +58,6 @@ public class shooterHood extends SubsystemBase {
         return m_setAngle;
     }
 
-    public void Intake(){
-        m_setAngle = Constants.ShoulderConstants.kIntake;
-        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
-    }
-
     public void Shoot() {
         m_setAngle = Constants.ShoulderConstants.kShoot;
         m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);

@@ -42,7 +42,7 @@ public class RobotContainer {
     m_driverController.rightTrigger().onTrue(new ShootCommand(m_Shooter, m_pitcher))
                                       .onFalse(new ResetCommand(m_Shooter, m_pitcher, m_intake));
 
-    m_driverController.leftTrigger().onTrue(new IntakeCommand(m_intake, m_pitcher))
+    m_driverController.leftTrigger().onTrue(new IntakeCommand(m_intake, m_pitcher, m_Shooter))
                                      .onFalse(new ResetCommand(m_Shooter, m_pitcher, m_intake));
 
     m_driverController.a().onTrue(new InstantCommand(()-> m_driveTrain.resetOdometry(new Pose2d())));

@@ -22,7 +22,7 @@ public class ResetCommand extends Command{
     public void initialize() {
         m_shooter.setVelocity(Constants.shooterConstants.kDefault);
         m_hood.setAngle(Constants.ShoulderConstants.kDefault);
-        //m_intake.setVelocity(Constants.intakeConstants.kDefault);
+        m_intake.setVelocity(Constants.intakeConstants.kDefault);
     }
 
     @Override
