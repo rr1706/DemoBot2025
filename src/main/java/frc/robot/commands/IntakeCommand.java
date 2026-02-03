@@ -19,7 +19,7 @@ public class IntakeCommand extends Command {
     @Override
     public void initialize() {
         m_hood.setAngle(Constants.ShoulderConstants.kIntake);
-        //m_intake.setVelocity(Constants.shooterConstants.kIntake);
+        m_intake.setVelocity(Constants.intakeConstants.kIntake);
     }
 
     @Override

@@ -25,6 +25,19 @@ public final class Constants {
           public static double kMAXVELOCITY = 10000.0;
   }
 
+  public static class intakeConstants {
+        public static final double kIntake = 5000.0;
+        public static final double kDefault = 0.0;
+        public static final double kMax = 50.0;
+        public static final double kMin = -50.0;
+        public static final int kMotorPort = 11;
+        public static final int kLimit = 100;
+        public static final double kP = 0.0001;
+        public static final double kI = 0.0;
+        public static final double kV = 0.0007;
+        public static final double kMAXACCEL = 4000.0;
+        public static double kMAXVELOCITY = 10000.0;  }
+
   public static class ShoulderConstants {
           public static final double kP = 0.1;
           public static final double kI = 0.0;
