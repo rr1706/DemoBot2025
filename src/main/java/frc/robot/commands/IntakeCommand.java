@@ -10,7 +10,6 @@ public class IntakeCommand extends Command {
     private final Intake m_intake;
     private final shooterHood m_hood;
     private final Shooter m_Shooter;
-    private final double tol = 1.0;
 
     public IntakeCommand(Intake intake, shooterHood hood, Shooter shooter) {
         addRequirements(intake, hood);
@@ -22,7 +21,7 @@ public class IntakeCommand extends Command {
     @Override
     public void initialize() {
         m_hood.setAngle(Constants.ShoulderConstants.kZero);
-        m_intake.setVelocity(Constants.intakeConstants.kIntake);
+        m_intake.intake();
         m_Shooter.setVelocity(Constants.shooterConstants.kRun);
     }
 

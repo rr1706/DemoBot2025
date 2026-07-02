@@ -8,7 +8,6 @@ import frc.robot.subsystems.shooterHood;
 public class ShootCommand extends Command {
     private final Shooter m_shooter;
     private final shooterHood m_hood;
-    private final double tol = 1.0;
     
     public ShootCommand(Shooter shooter, shooterHood hood) {
         addRequirements(shooter, hood);

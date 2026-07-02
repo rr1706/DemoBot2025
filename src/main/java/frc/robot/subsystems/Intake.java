@@ -11,71 +11,116 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.intakeConstants;
 
 public class Intake extends SubsystemBase {
-    private final SparkMax m_motor = 
-            new SparkMax(Constants.intakeConstants.kMotorPort, MotorType.kBrushless);
-    private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
-    private final SparkMaxConfig m_motorConfig = new SparkMaxConfig();
-    private SparkClosedLoopController m_motorPID;
+    private final SparkMax m_roller = 
+            new SparkMax(Constants.intakeConstants.kRollerMotorPort, MotorType.kBrushless);
+    private final SparkMax m_arm = 
+            new SparkMax(Constants.intakeConstants.kArmMotorPort, MotorType.kBrushless);
+
+    private final RelativeEncoder m_rollerEncoder = m_roller.getEncoder();
+    private final RelativeEncoder m_armEncoder = m_arm.getEncoder();
+
+    private final SparkMaxConfig m_rollerConfig = new SparkMaxConfig();
+    private final SparkMaxConfig m_armConfig = new SparkMaxConfig();
+
+    private SparkClosedLoopController m_rollerPID = m_roller.getClosedLoopController();
+    private SparkClosedLoopController m_armPID = m_arm.getClosedLoopController();
 
     public Intake() {
-        motorBackground();
+        motorConfigs();
     }
 
-    private double m_setSpeed = 0.0;
+    private static double m_setVelocity = 0.0;
+    private static double m_setPosition = 0.0;
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Shooter Set Velocity", m_setSpeed);
-        SmartDashboard.putNumber("Shooter True Velocity", getVelocity());
-    }
-
-    public void Intake() {
-        m_setSpeed = intakeConstants.kIntake;
-        m_motorPID.setReference(m_setSpeed, ControlType.kMAXMotionVelocityControl);
-    }
-
-    public void Stop() {
-        m_setSpeed = intakeConstants.kDefault;
-        m_motorPID.setReference(m_setSpeed, ControlType.kMAXMotionVelocityControl);
+        SmartDashboard.putNumber("Intake Set Velocity", m_setVelocity);
+        SmartDashboard.putNumber("Intake Velocity", getVelocity());
+        SmartDashboard.putNumber("Intake Set Position", m_setPosition);
+        SmartDashboard.putNumber("Intake Position", getPosition());
     }
 
     public double getVelocity() {
-        double Velocity = m_motorEncoder.getVelocity();
-        return (Velocity);
+        return m_rollerEncoder.getVelocity();
     }
 
-    public double changeVelocity(double adjust) {
-        m_setSpeed += adjust;
-        SmartDashboard.putNumber("Changed Shooter Velocity", adjust);
-        return m_setSpeed;
+    public double getPosition() {
+        return m_armEncoder.getPosition();
     }
 
-    public void setVelocity(double speed) {
-        m_setSpeed = speed;
-        m_motorPID.setReference(m_setSpeed, ControlType.kMAXMotionVelocityControl);
+    public void setVelocity(double Velocity) {
+        m_setVelocity = Velocity;
+        m_rollerPID.setReference(m_setVelocity, ControlType.kMAXMotionVelocityControl);
     }
 
-    private void motorBackground() {
-        m_motorPID = m_motor.getClosedLoopController();
+    public void setPosition(double Position) {
+        m_setPosition = Position;
+        m_armPID.setReference(m_setPosition, ControlType.kMAXMotionPositionControl);
+    }
 
-        m_motorConfig.closedLoop
+    public void intake() {
+        setVelocity(intakeConstants.kIntakeVelocity);
+        setPosition(intakeConstants.kIntakePosition);
+    }
+
+    public void stop() {
+        m_roller.stopMotor();
+        m_arm.stopMotor();
+    }
+
+    public Command intakeCmd() {
+        return 
+            runEnd(()-> intake(), 
+                ()-> {
+                    setVelocity(0.0);
+                    setPosition(intakeConstants.kHomePosition);
+                });
+    }
+
+    private void motorConfigs() {
+        m_rollerConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
                 .p(intakeConstants.kP)
                 .i(intakeConstants.kI)
+                .d(intakeConstants.kD)
                 .outputRange(-1, 1);
+
+        m_armConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+                .p(intakeConstants.kArmP)
+                .i(intakeConstants.kArmI)
+                .d(intakeConstants.kArmD)
+                .outputRange(-1, 1);
+
+        m_armConfig.softLimit
+                .forwardSoftLimit(intakeConstants.kForwardLimit)
+                .reverseSoftLimit(intakeConstants.kReverseLimit)
+                .forwardSoftLimitEnabled(true)
+                .reverseSoftLimitEnabled(true);
         
-        m_motorConfig.closedLoop.maxMotion
+        m_rollerConfig.closedLoop.maxMotion
                 .maxAcceleration(intakeConstants.kMAXACCEL)
                 .maxVelocity(intakeConstants.kMAXVELOCITY)
-                .allowedClosedLoopError(1);
+                .allowedClosedLoopError(1.0);
 
-        m_motorConfig.idleMode(IdleMode.kBrake);
-        m_motorConfig.smartCurrentLimit(Constants.shooterConstants.kLimit);
-        m_motor.configure(m_motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        m_rollerConfig.closedLoop.maxMotion
+                .maxAcceleration(intakeConstants.kARM_MAXACCEL)
+                .maxVelocity(intakeConstants.kARM_MAXVELOCITY)
+                .allowedClosedLoopError(1.0);
+
+        m_rollerConfig.idleMode(IdleMode.kBrake);
+        m_rollerConfig.smartCurrentLimit(Constants.shooterConstants.kLimit);
+
+        m_armConfig.idleMode(IdleMode.kBrake);
+        m_armConfig.smartCurrentLimit(Constants.shooterConstants.kLimit);
+
+        m_roller.configure(m_rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+        m_arm.configure(m_armConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 }
