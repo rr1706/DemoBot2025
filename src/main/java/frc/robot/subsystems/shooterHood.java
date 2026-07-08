@@ -4,106 +4,96 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.ShoulderConstants;
+import frc.robot.Constants.shooterHoodConstants;
 
 
-public class shooterHood extends SubsystemBase {
+public class ShooterHood extends SubsystemBase {
     private final SparkMax m_motor = 
-            new SparkMax(Constants.ShoulderConstants.kMotorPort, MotorType.kBrushless);
+            new SparkMax(shooterHoodConstants.kMotorPort, MotorType.kBrushless);
+
     private final SparkMaxConfig m_motorConfig = new SparkMaxConfig();
     private SparkClosedLoopController m_motorPID;
     private final RelativeEncoder m_motorEncoder = m_motor.getEncoder();
 
-    public shooterHood() {
-        motorBackground();
+    public ShooterHood() {
+        motorConfigs();
     }
 
-    private double m_setAngle = Constants.ShoulderConstants.kDefault;
-
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Pitcher Set Angle", m_setAngle);
-        SmartDashboard.putNumber("Pitcher True Angle", getPosition());
-    }
-
-    public double getSetAngle() {
-        return m_setAngle;
-    }
+    private static double m_setpoint = 0.0;
 
     public double getPosition() {
-        double Position = m_motorEncoder.getPosition();
-        return Units.radiansToDegrees(Position);
-    }
-
-    public double getVelocity() {
-        double Velocity = m_motorEncoder.getVelocity();
-        return (Velocity);
-    }
-
-    public double changePitch(double adjust) {
-        m_setAngle += adjust;
-        SmartDashboard.putNumber("Changed Pitcher Angle", adjust);
-        return m_setAngle;
-    }
-
-    public void Shoot() {
-        m_setAngle = Constants.ShoulderConstants.kShoot;
-        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
-    }
-
-    public void Home() {
-        m_setAngle = Constants.ShoulderConstants.kDefault;
-        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
+        return m_motorEncoder.getPosition();
     }
 
     public void setAngle(double angle) {
-        m_setAngle = angle;
+        m_setpoint = angle;
 
-        if (m_setAngle >= Constants.ShoulderConstants.kMax) {
-            m_setAngle = Constants.ShoulderConstants.kMax;
-        } else if (m_setAngle <= Constants.ShoulderConstants.kMin) {
-            m_setAngle = Constants.ShoulderConstants.kMin;
+        if (m_setpoint >= shooterHoodConstants.kMax) {
+            m_setpoint = shooterHoodConstants.kMax;
+        } else if (m_setpoint <= shooterHoodConstants.kMin) {
+            m_setpoint = shooterHoodConstants.kMin;
         }
 
-        m_motorPID.setReference(m_setAngle, ControlType.kMAXMotionPositionControl);
+        m_motorPID.setReference(m_setpoint, ControlType.kMAXMotionPositionControl);
     }
 
-    private void motorBackground() {
+    public double changePitch(double adjust) {
+        m_setpoint += adjust;
+        SmartDashboard.putNumber("Changed Pitcher Angle", adjust);
+        return m_setpoint;
+    }
+
+    public void shoot() {
+        setAngle(shooterHoodConstants.kShoot);
+    }
+
+    public void home() {
+        setAngle(shooterHoodConstants.kDefault);
+    }
+
+    public Command shootCmd() {
+        return runEnd(()-> shoot(), ()-> home());
+    }
+
+    private void motorConfigs() {
         m_motorPID = m_motor.getClosedLoopController();
 
         m_motorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                .p(Constants.ShoulderConstants.kP)
-                .i(Constants.ShoulderConstants.kI)
-                .d(Constants.ShoulderConstants.kD)
+                .p(shooterHoodConstants.kP)
+                .i(shooterHoodConstants.kI)
+                .d(shooterHoodConstants.kD)
                 .outputRange(-1, 1);
 
         m_motorConfig.closedLoop.maxMotion
-                .maxAcceleration(Constants.ShoulderConstants.maxMotion.kA)
-                .maxVelocity(Constants.ShoulderConstants.maxMotion.kV)
-                .allowedClosedLoopError(Constants.ShoulderConstants.maxMotion.kE);
+                .maxAcceleration(shooterHoodConstants.kMAXACCEL)
+                .maxVelocity(shooterHoodConstants.kMAXVELOCITY)
+                .allowedClosedLoopError(1.0);
         
 
         m_motorConfig.softLimit
-                .forwardSoftLimit(ShoulderConstants.kforwardLim)
+                .forwardSoftLimit(shooterHoodConstants.kForwardLim)
                 .forwardSoftLimitEnabled(true)
-                .reverseSoftLimit(ShoulderConstants.kreverseLim)
+                .reverseSoftLimit(shooterHoodConstants.kReverseLim)
                 .reverseSoftLimitEnabled(true);
 
         m_motorConfig.idleMode(IdleMode.kBrake);
-        m_motorConfig.smartCurrentLimit(Constants.CurrentLimit.kShoulder);
+        m_motorConfig.smartCurrentLimit(shooterHoodConstants.kLimit);
         m_motor.configure(m_motorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Pitcher Set Angle", m_setpoint);
+        SmartDashboard.putNumber("Pitcher True Angle", getPosition());
     }
 }

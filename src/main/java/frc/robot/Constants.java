@@ -11,19 +11,23 @@ public final class Constants {
   
   public static class shooterConstants {
           public static final double kFF = 1.0/5820.0;
-          public static final double kShoot = 5000.0;
-          public static final double kDefault = 0.0;
+
+          public static final double kshoot = 5000.0;
+
           public static final double kMax = 50.0;
           public static final double kMin = -50.0;
-          public static final double kIntake = -5.0;
+
           public static final int kMotorPort = 10;
+
           public static final int kLimit = 100;
+
           public static final double kP = 0.0001;
           public static final double kI = 0.0;
+          public static final double kD = 0.0;
           public static final double kV = 0.0007;
+
           public static final double kMAXACCEL = 4000.0;
-          public static double kMAXVELOCITY = 10000.0;
-          public static final double kRun = 11;
+          public static final double kMAXVELOCITY = 10000.0;
   }
 
   public static class intakeConstants {
@@ -37,6 +41,9 @@ public final class Constants {
         public static final double kArmP = 1.0;
         public static final double kArmI = 0.0;
         public static final double kArmD = 0.0;
+
+        public static final int kRollerLimit = 40;
+        public static final int kArmLimit = 60;
 
         public static final double kForwardLimit = 10.0;
         public static final double kReverseLimit = 0.0;
@@ -52,24 +59,26 @@ public final class Constants {
         public static final double kHomePosition = 0.0;
   }
 
-  public static class ShoulderConstants {
+  public static class shooterHoodConstants {
           public static final double kP = 0.1;
           public static final double kI = 0.0;
           public static final double kD = 0.0;
+
           public static final double kShoot = 24.5;
-          public static final double kZero = 0.0;
+          public static final double kDefault = 10.0;
+
           public static final double kMax = 24.5;
           public static final double kMin = 0;
-          public static final double kDefault = 10.0;
-          public static final int kMotorPort = 9;
-          public static final double kforwardLim = 24.5;
-          public static final double kreverseLim = 0.0;
 
-          public class maxMotion {
-            public static final double kV = 2500.0;
-            public static final double kA = 10000.0;
-            public static final double kE = 1.0;
-          }
+          public static final int kMotorPort = 9;
+
+          public static final double kForwardLim = 24.5;
+          public static final double kReverseLim = 0.0;
+
+          public static final int kLimit = CurrentLimit.kShoulder;
+
+          public static final double kMAXVELOCITY = 2500.0;
+          public static final double kMAXACCEL = 10000.0;
   }
 
   public static class OperatorConstants {

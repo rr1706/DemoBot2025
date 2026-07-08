@@ -13,14 +13,13 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.intakeConstants;
 
 public class Intake extends SubsystemBase {
     private final SparkMax m_roller = 
-            new SparkMax(Constants.intakeConstants.kRollerMotorPort, MotorType.kBrushless);
+            new SparkMax(intakeConstants.kRollerMotorPort, MotorType.kBrushless);
     private final SparkMax m_arm = 
-            new SparkMax(Constants.intakeConstants.kArmMotorPort, MotorType.kBrushless);
+            new SparkMax(intakeConstants.kArmMotorPort, MotorType.kBrushless);
 
     private final RelativeEncoder m_rollerEncoder = m_roller.getEncoder();
     private final RelativeEncoder m_armEncoder = m_arm.getEncoder();
@@ -31,19 +30,11 @@ public class Intake extends SubsystemBase {
     private SparkClosedLoopController m_rollerPID = m_roller.getClosedLoopController();
     private SparkClosedLoopController m_armPID = m_arm.getClosedLoopController();
 
-    public Intake() {
-        motorConfigs();
-    }
-
     private static double m_setVelocity = 0.0;
     private static double m_setPosition = 0.0;
 
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Intake Set Velocity", m_setVelocity);
-        SmartDashboard.putNumber("Intake Velocity", getVelocity());
-        SmartDashboard.putNumber("Intake Set Position", m_setPosition);
-        SmartDashboard.putNumber("Intake Position", getPosition());
+    public Intake() {
+        motorConfigs();
     }
 
     public double getVelocity() {
@@ -69,18 +60,18 @@ public class Intake extends SubsystemBase {
         setPosition(intakeConstants.kIntakePosition);
     }
 
+    public void home() {
+        setVelocity(0.0);
+        setPosition(intakeConstants.kHomePosition);
+    }
+
     public void stop() {
         m_roller.stopMotor();
         m_arm.stopMotor();
     }
 
     public Command intakeCmd() {
-        return 
-            runEnd(()-> intake(), 
-                ()-> {
-                    setVelocity(0.0);
-                    setPosition(intakeConstants.kHomePosition);
-                });
+        return runEnd(()-> intake(), ()-> home());
     }
 
     private void motorConfigs() {
@@ -115,12 +106,20 @@ public class Intake extends SubsystemBase {
                 .allowedClosedLoopError(1.0);
 
         m_rollerConfig.idleMode(IdleMode.kBrake);
-        m_rollerConfig.smartCurrentLimit(Constants.shooterConstants.kLimit);
+        m_rollerConfig.smartCurrentLimit(intakeConstants.kRollerLimit);
 
         m_armConfig.idleMode(IdleMode.kBrake);
-        m_armConfig.smartCurrentLimit(Constants.shooterConstants.kLimit);
+        m_armConfig.smartCurrentLimit(intakeConstants.kArmLimit);
 
         m_roller.configure(m_rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         m_arm.configure(m_armConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Intake Set Velocity", m_setVelocity);
+        SmartDashboard.putNumber("Intake Velocity", getVelocity());
+        SmartDashboard.putNumber("Intake Set Position", m_setPosition);
+        SmartDashboard.putNumber("Intake Position", getPosition());
     }
 }
